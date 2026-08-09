@@ -9,17 +9,17 @@ Solo-dev, evening project. Target: 10-player persistent-world survival MMO.
 
 ## Play with a friend (LAN or Steam)
 
-**Public how-to (both PCs):** see the repo root **[README.md](../README.md)** — LAN steps, firewall, game version, and Steam invite path.
+**Players: download the zip, unzip, double‑click `FoM.exe`.** No terminal.
 
-Short version:
+Pack: [latest GitHub Release](https://github.com/Noisemaker111/fallout4multiplayer/releases/latest)  
+Full simple guide: repo root [README.md](../README.md)
 
 | Mode | Host | Friend |
 |------|------|--------|
-| **LAN** (same Wi‑Fi) | `FoM.exe` → **3** → Host → read off IP | `FoM.exe` → **3** → Join → type host IP |
-| **Internet** | `FoM.exe` → **1** → invite | Accept invite (or Steam → Join Game) |
+| **LAN** (same Wi‑Fi) | `FoM.exe` → **3** → Host → tell them the IP | `FoM.exe` → **3** → Join → type that IP |
+| **Internet** | `FoM.exe` → **1** → invite | Accept (or Steam → Join Game) |
 
-Player pack build: [tools/player_setup/README.md](tools/player_setup/README.md).  
-Dev LAN server (bind all interfaces): `start_server_lan.bat` (UDP **31337**).
+Keep FoM open while playing. Developers only: [tools/player_setup/README.md](tools/player_setup/README.md).
 
 > **Status (2026-06-06):** **N3 shared HP — DONE; N4 player death — DONE.** The
 > shared-HP enemy bar is now LIVE on both clients — the non-owner's local Health
