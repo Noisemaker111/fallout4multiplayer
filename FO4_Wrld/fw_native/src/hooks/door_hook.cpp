@@ -1,0 +1,193 @@
+#include "door_hook.h"
+
+#include <windows.h>
+#include <atomic>
+#include <chrono>
+#include <cstdint>
+
+#include "container_hook.h"      // tls_applying_remote (feedback-loop guard)
+#include "npc_ai_suppress.h"     // B6.6w0 puppet — should_freeze_actor
+#include "../hook_manager.h"
+#include "../log.h"
+#include "../offsets.h"
+#include "../ref_identity.h"
+#include "../net/client.h"
+
+namespace fw::hooks {
+
+namespace {
+
+// Engine Activate worker = sub_140514180 (validated phase 1.b: fires
+// 1× per E keypress, no save-load noise, supports 2 distinct REFRs).
+//
+// Signature inferred from Papyrus SetOpen callsite + observed args:
+//   char sub_140514180(REFR* refr, REFR* activator,
+//                      void* a3, void* a4, void* a5, void* a6, void* a7);
+// Args 5-7 in our phase 1.b log were stack-residue (e.g. arg6 was the
+// FO4 image base 0x7FF600000000 — clearly noise, not a real arg). Real
+// arg count is 4; we keep 7 in the signature so the trampoline frame
+// matches the original calling convention and stack cleanup is correct.
+using ActivateWorkerFn = char (*)(void* refr, void* activator,
+                                  void* a3, void* a4,
+                                  void* a5, void* a6, void* a7);
+
+ActivateWorkerFn g_orig_activate = nullptr;
+
+// Form-type filter: Activate worker fires for ALL Activate dispatches
+// (terminals, NPCs, switches, levers, weapons-on-ground, etc).
+// B6.0 doors (empirical) + B6.2 lights/toggles (liberal Activate-able set):
+//   0x1F / 0x29 = DOOR family
+//   0x20 / 0x24 = ACTI family (house doors, many light switches, generators)
+//   0x21 / 0x28 = extra interactables (light candidates / furniture)
+// Receiver re-runs Activate on the matching REFR (toggle converges).
+// Non-toggle ACTIs that slip through are usually harmless (no-op Activate).
+constexpr bool is_world_toggle_formtype(std::uint8_t ftype) {
+    using namespace offsets;
+    return ftype == FORMTYPE_DOOR_A
+        || ftype == FORMTYPE_ACTI_A
+        || ftype == FORMTYPE_ACTI_B
+        || ftype == FORMTYPE_DOOR_B
+        || ftype == FORMTYPE_LIGH_CAND
+        || ftype == FORMTYPE_FURN;
+}
+
+// Monotonic fire counter for diagnostics + matching tx ↔ rx in the log.
+std::atomic<std::uint64_t> g_fire_count{0};
+
+struct DoorObserveResult {
+    std::uint32_t form_id;
+    std::uint32_t base_id;
+    std::uint32_t cell_id;
+    std::uint8_t  form_type;
+    bool          toggle_like;  // door / light switch / ACTI toggle
+    bool          identity_ok;
+};
+
+static void observe_target(void* refr, DoorObserveResult* out) {
+    out->form_id = 0;
+    out->base_id = 0;
+    out->cell_id = 0;
+    out->form_type = 0xFF;
+    out->toggle_like = false;
+    out->identity_ok = false;
+
+    __try {
+        if (!refr) return;
+
+        const auto cid = read_ref_identity(refr);
+        out->form_id = cid.form_id;
+        out->base_id = cid.base_id;
+        out->cell_id = cid.cell_id;
+        out->identity_ok = (cid.base_id != 0 && cid.cell_id != 0);
+
+        const auto* refr_bytes = reinterpret_cast<const std::uint8_t*>(refr);
+        void* base_form = *reinterpret_cast<void* const*>(
+            refr_bytes + offsets::BASE_FORM_OFF);
+        if (base_form) {
+            out->form_type = *reinterpret_cast<const std::uint8_t*>(
+                reinterpret_cast<const std::uint8_t*>(base_form)
+                + offsets::FORMTYPE_OFF);
+            out->toggle_like = is_world_toggle_formtype(out->form_type);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {}
+}
+
+char __fastcall detour_activate_worker(void* refr,
+                                       void* activator, void* a3, void* a4,
+                                       void* a5, void* a6, void* a7)
+{
+    const auto fire = g_fire_count.fetch_add(1, std::memory_order_relaxed) + 1;
+
+    // B6.1 feedback-loop guard: when the local main thread is mid-apply
+    // of a remote DOOR_BCAST (drain_door_apply_queue calls Activate
+    // worker which lands here), tls_applying_remote is true and we MUST
+    // skip broadcast — otherwise A's open propagates back to A as a
+    // fresh DOOR_OP, ping-pong forever.
+    if (tls_applying_remote) {
+        FW_DBG("[door-act] FIRE #%llu — applying_remote, passthrough",
+               static_cast<unsigned long long>(fire));
+        if (g_orig_activate) {
+            return g_orig_activate(refr, activator, a3, a4, a5, a6, a7);
+        }
+        return 0;
+    }
+
+    DoorObserveResult r{};
+    observe_target(refr, &r);
+
+    // B6.6w0 puppet — BAIL activation entirely for tracked actors.
+    // Without AI tick, the engine's activation handler reads stale
+    // AIProcess state and gives the player a "Talk" prompt; on
+    // activation it tries to open a dialogue with an actor whose AI
+    // is bailed → deadlock / freeze. Bailing here prevents player
+    // E-key activation from reaching the engine for tracked raiders.
+    //
+    // Form type for Actor = 0x2E (ACHR). We don't filter strictly on
+    // ftype here — `should_freeze_actor` already rejects fid 0 / 0x14
+    // / non-tracked, so non-actor refs sail through.
+    if (r.identity_ok
+        && fw::hooks::should_freeze_actor(r.form_id))
+    {
+        FW_DBG("[door-act] FIRE #%llu BAIL tracked-actor activation "
+               "form=0x%X ftype=0x%X (puppet: prevent dialogue freeze)",
+               static_cast<unsigned long long>(fire),
+               r.form_id, r.form_type);
+        return 0;
+    }
+
+    if (!r.identity_ok || !r.toggle_like) {
+        // Activate fired for something we do not sync (NPC talk, etc).
+        FW_DBG("[door-act] FIRE #%llu skip (id_ok=%d toggle=%d ftype=0x%X)",
+               static_cast<unsigned long long>(fire),
+               int(r.identity_ok), int(r.toggle_like), r.form_type);
+        if (g_orig_activate) {
+            return g_orig_activate(refr, activator, a3, a4, a5, a6, a7);
+        }
+        return 0;
+    }
+
+    // Door / light / ACTI toggle by local player. Broadcast to peers
+    // (same DOOR_OP wire — toggle semantics on Activate).
+    using namespace std::chrono;
+    const std::uint64_t ts_ms = duration_cast<milliseconds>(
+        system_clock::now().time_since_epoch()).count();
+
+    fw::net::client().enqueue_door_op(r.form_id, r.base_id, r.cell_id, ts_ms);
+
+    FW_LOG("[door-act] FIRE #%llu BROADCAST form=0x%X base=0x%X cell=0x%X "
+           "ftype=0x%X (door/light/toggle) ts=%llu",
+           static_cast<unsigned long long>(fire),
+           r.form_id, r.base_id, r.cell_id, r.form_type,
+           static_cast<unsigned long long>(ts_ms));
+
+    if (g_orig_activate) {
+        return g_orig_activate(refr, activator, a3, a4, a5, a6, a7);
+    }
+    FW_ERR("[door-act] g_orig_activate NULL — engine call dropped");
+    return 0;
+}
+
+} // namespace
+
+bool install_door_hook(std::uintptr_t module_base) {
+    const auto target_ea = module_base + offsets::ENGINE_ACTIVATE_WORKER_RVA;
+    void* target = reinterpret_cast<void*>(target_ea);
+
+    const bool ok = install(
+        target,
+        reinterpret_cast<void*>(&detour_activate_worker),
+        reinterpret_cast<void**>(&g_orig_activate));
+    if (ok) {
+        FW_LOG("[door-act] hook installed at 0x%llX "
+               "(Activate worker = sub_140514180 @ RVA 0x%lX) — "
+               "phase 2 BROADCAST",
+               static_cast<unsigned long long>(target_ea),
+               static_cast<unsigned long>(offsets::ENGINE_ACTIVATE_WORKER_RVA));
+    } else {
+        FW_ERR("[door-act] hook install FAILED at 0x%llX",
+               static_cast<unsigned long long>(target_ea));
+    }
+    return ok;
+}
+
+} // namespace fw::hooks

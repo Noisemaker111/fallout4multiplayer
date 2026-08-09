@@ -1,0 +1,292 @@
+name,source_rva,ported_rva,confidence,method,note
+ACTOR_ATOMIC_TELEPORT_RVA,0x00C60BE0,,none,,manual RE
+ACTOR_COMBAT_ORCHESTRATOR_RVA,0x00CCFDF0,,none,,manual RE
+ACTOR_DISPATCH_ATTACK_ACTION_RVA,0x00E6F830,,none,,manual RE
+ACTOR_HIT_APPLIER_RVA,0x00CD2780,,none,,manual RE
+ACTOR_HP_FUNNEL_RVA,0x00CC9650,,none,,manual RE
+ACTOR_SETPOS_VT202_RVA,0x00C60630,,none,,manual RE
+ACTOR_UPDATE_PERFRAME_RVA,0x00C636A0,,none,,manual RE
+ADD_COMBAT_TARGET_RVA,0x00E91D70,,none,,manual RE
+AIM_SET_TARGET_RVA,0x00E65820,,none,,manual RE
+AIPROCESS_SET_COMBAT_TARGET_RVA,0x0087AB30,,none,,manual RE
+ALIVE_COUNTER_RVA,0x00E9E650,,none,,manual RE
+ANIMS_AND_EFFECTS_THUNK_RVA,0x00BD5300,,none,,manual RE
+ANIM_GRAPH_FLUSH_RVA,0x01695CF0,,none,,manual RE
+BGS_INV_LIST_MATERIALIZE_RVA,0x00511F10,,none,,manual RE
+BHK_CHAR_FINISH_STEP_RVA,0x018B9790,,none,,manual RE
+BSFIXEDSTRING_MAKE_RVA,0x0167BDC0,,none,,manual RE
+CELL_ATTACH_JOBS_THUNK_RVA,0x00BD62A0,,none,,manual RE
+COMBATCTRL_ADD_TARGET_RVA,0x00E91D70,,none,,manual RE
+COMBATCTRL_AGGRO_FRESHNESS_RVA,0x00E9EC40,,none,,manual RE
+COMBATCTRL_ALLY_HEALTH_RVA,0x00E97D30,,none,,manual RE
+COMBATCTRL_ALLY_VALIDITY1_RVA,0x00E9E870,,none,,manual RE
+COMBATCTRL_ALLY_VALIDITY2_RVA,0x00E9EA40,,none,,manual RE
+COMBATCTRL_COUNT_ENTRIES_RVA,0x00E9E760,,none,,manual RE
+COMBATCTRL_ENSURE_KNOWN_RVA,0x00E929C0,,none,,manual RE
+COMBATCTRL_FIND_BY_ACTOR_RVA,0x00E986C0,,none,,manual RE
+COMBATCTRL_FIND_BY_FID_RVA,0x00E98760,,none,,manual RE
+COMBATCTRL_FIND_ENTRY_RVA,0x00E98820,,none,,manual RE
+COMBATCTRL_FIND_IN_RANGE_RVA,0x00E96490,,none,,manual RE
+COMBATCTRL_GROUP_GATE_RVA,0x00E924A0,,none,,manual RE
+COMBATCTRL_GROUP_RECONCILE_RVA,0x00ED2490,,none,,manual RE
+COMBATCTRL_HOUSEKEEPING_RVA,0x00E988A0,,none,,manual RE
+COMBATCTRL_KNOWN_BY_ACTOR_RVA,0x00E92E50,,none,,manual RE
+COMBATCTRL_NOTIFY_SUBS_RVA,0x00E98480,,none,,manual RE
+COMBATCTRL_PROCESS_TICK_RVA,0x00E918C0,,none,,manual RE
+COMBATCTRL_REMOVE_ALLY_BY_IDX_RVA,0x00E9E0C0,,none,,manual RE
+COMBATCTRL_REMOVE_ALLY_BY_KEY_RVA,0x00E92D00,,none,,manual RE
+COMBATCTRL_REMOVE_BY_FID_RVA,0x00E92260,,none,,manual RE
+COMBATCTRL_TIER1_E97D30_RVA,0x00E97D30,,none,,manual RE
+COMBATCTRL_TIER1_E98480_RVA,0x00E98480,,none,,manual RE
+COMBATCTRL_TIER1_E9D710_RVA,0x00E9D710,,none,,manual RE
+COMBATCTRL_UPDATE_POS_RVA,0x00E92B90,,none,,manual RE
+COMBATCTRL_UPDATE_TARGET_REC_RVA,0x00E959E0,,none,,manual RE
+COMBAT_AIM_CONTROLLER_CTOR_RVA,0x00E653D0,,none,,manual RE
+COMBAT_ENGAGE_GATE_RVA,0x00CF6100,,none,,manual RE
+COMBAT_GUNFIRE_DECIDE_RVA,0x0086FCA0,,none,,manual RE
+COMBAT_PROMOTER_FRESH_RVA,0x00ED2390,,none,,manual RE
+CONTAINER_MENU_TRANSFER_ITEM_RVA,0x0103E950,,none,,manual RE
+DEATH_BROADCAST_WALKER_RVA,0x00C80D70,,none,,manual RE
+ENGINE_ADD_ITEM_RVA,0x011735A0,,none,,manual RE
+ENGINE_ENABLE_AI_RVA,0x00C76590,,none,,manual RE
+ENGINE_EQUIP_OBJECT_RVA,0x00CE5900,,none,,manual RE
+ENGINE_FORCE_LOCK_RVA,0x00563360,0x0047FFE0,propagated,propagated,
+ENGINE_FORCE_UNLOCK_RVA,0x00563320,,none,,manual RE
+ENGINE_HEAP_ALLOC_RVA,0x016579C0,0x01B0EE10,exact,exact,
+ENGINE_LOCK_PAPYRUS_APPLY_RVA,0x01158640,,none,,manual RE
+ENGINE_REMOVE_ITEM_RVA,0x011825A0,,none,,manual RE
+ENGINE_UNEQUIP_OBJECT_RVA,0x00CE5DA0,,none,,manual RE
+ENTER_COMBAT_RVA,0x00CCF810,,none,,manual RE
+FIXED_SELECTOR_CTOR_RVA,0x00EE9780,,none,,manual RE
+FOOT_IK_THUNK_RVA,0x00BD5720,,none,,manual RE
+FORM_TABLE_REHYDRATOR_RVA,0x00C06AC0,,none,,manual RE
+HANDLE_GET_OR_ALLOC_RVA,0x0022C8B0,0x000229C0,propagated,propagated,
+HOSTILITY_CORE_RVA,0x00C8DFF0,0x00DA2FB0,propagated,propagated,
+INVLIST_MUTEX_LOCK_RVA,0x01658FE0,,none,propagated,REJECTED: target claimed by multiple sources
+INVLIST_MUTEX_UNLOCK_RVA,0x016592B0,,none,,manual RE
+KILL_ENGINE_RVA,0x00C612E0,,none,,manual RE
+LOAD_GAME_FN_RVA,0x00BF93B0,0x00CED400,strong,strong,
+LOAD_PRECOND_FN_RVA,0x01084830,,none,,manual RE
+LOAD_PREP_FN_RVA,0x00C37200,,none,,manual RE
+LOCK_PRIMITIVE_GUARD_RVA,0x01658FE0,,none,propagated,REJECTED: target claimed by multiple sources
+LOCK_RELEASE_WRITE_RVA,0x016592C0,,none,,manual RE
+LOOKUP_BY_FORMID_RVA,0x00311850,,none,,manual RE
+LOS_SIGHT_CONE_WALKER_RVA,0x00DA28A0,,none,,manual RE
+MAIN_MENU_REGISTRAR_RVA,0x00B01290,0x00BBC050,exact,exact,
+MEMMGR_ALLOC_RVA,0x016579C0,0x01B0EE10,exact,exact,
+MEMMGR_LAZY_INIT_RVA,0x01657F90,,none,propagated,REJECTED: target claimed by multiple sources
+MOVCTRL_SET_DISABLED_RVA,0x00DC80B0,,none,,manual RE
+MOVEMENT_TICK_RVA,0x00C65E20,,none,,manual RE
+NIAV_SET_MOTION_TYPE_RVA,0x018763E0,0x01D70D60,propagated,propagated,
+PAPYRUS_GLOBALVAR_SETVALUE_RVA,0x013F0A40,,none,,manual RE 1.10.163 LEA scan 2026-08-03
+PAPYRUS_QUEST_SETSTAGE_RVA,0x01449550,,none,,manual RE 1.10.163 LEA scan 2026-08-03
+PER_ACTOR_RENDER_RVA,0x021BBD20,,none,,manual RE
+PKG_EVAL_CONDITIONS_RVA,0x00768CC0,,none,,manual RE
+PLACE_AT_ME_RVA,0x01159C10,,none,,manual RE
+PLAYER_CTOR_RVA,0x00D52350,,none,,manual RE
+PLAYER_PICKUP_RVA,0x00D62930,,none,,manual RE
+POST_PICK_GATE_RVA,0x0087A900,,none,,manual RE
+PROCESSLISTS_ADD_ACTOR_RVA,0x00DAF6D0,,none,,manual RE
+PUPPET_ACTOR_IS_LOADED3D_RVA,0x00516FB0,,none,,manual RE
+PUPPET_AIPROC_POST_EXTRA_RVA,0x00CF2290,,none,,manual RE
+PUPPET_ANIM_DISPATCH_DELTA_RVA,0x00CEEBD0,,none,,manual RE
+PUPPET_ANIM_DISPATCH_IDLE_RVA,0x00CEEB90,,none,,manual RE
+PUPPET_ANIM_EVENT_DRAIN_RVA,0x00DA8F60,,none,,manual RE
+PUPPET_BS_TIME_FRAME_COUNT_RVA,0x00C1F120,,none,,manual RE
+PUPPET_DEATH_FADE_RVA,0x00C960C0,,none,,manual RE
+PUPPET_EXTRADATA_PARITY_TICK_RVA,0x00280660,,none,,manual RE
+PUPPET_GRAPHMGR_IS_LOADING_RVA,0x00DC8170,,none,,manual RE
+PUPPET_MOUNT_SWIM_FLAGS_RVA,0x00C5AD90,0x00D71C70,propagated,propagated,
+PUPPET_SHUTDOWN_TRANSITION_RVA,0x00C9B860,,none,,manual RE
+PUPPET_STACK_LOCAL_CTOR_A_RVA,0x016597B0,0x01B10E10,propagated,propagated,
+PUPPET_STACK_LOCAL_CTOR_B_RVA,0x01659470,,none,,manual RE
+PUPPET_STACK_LOCAL_DTOR_RVA,0x0029CC10,,none,,manual RE
+PUPPET_STATIC_BLOCK_CHECK_RVA,0x00C65F50,,none,,manual RE
+PUPPET_TICK_RENDER_STATE_RVA,0x00CE1720,0x00E14500,propagated,propagated,
+REFHANDLE_RESOLVE_RVA,0x0021E230,,none,propagated,REJECTED: target claimed by multiple sources
+SCENE_RENDER_RVA,0x00C38F80,,none,,manual RE
+SET_GRAPH_VAR_BOOL_RVA,0x00818D60,,none,,manual RE
+SET_GRAPH_VAR_FLOAT_RVA,0x00818DA0,,none,,manual RE
+SET_GRAPH_VAR_INT_RVA,0x00818D80,,none,,manual RE
+UPDATE_WORLD_DATA_RVA,0x016C85A0,,none,,manual RE
+WEAPON_FIRE_HANDLER_RVA,0x00DFF6B0,,none,,manual RE
+engine/engine_calls.cpp:sub_14021E3F0,0x0021E3F0,,none,propagated,REJECTED: target claimed by multiple sources
+engine/engine_calls.cpp:sub_14022CC20,0x0022CC20,,none,propagated,REJECTED: target claimed by multiple sources
+engine/engine_calls.cpp:sub_140272730,0x00272730,0x00080750,propagated,propagated,
+engine/engine_calls.cpp:sub_1402A0540,0x002A0540,,none,propagated,REJECTED: target claimed by multiple sources
+engine/engine_calls.cpp:sub_1402E4DF0,0x002E4DF0,,none,,manual RE
+engine/engine_calls.cpp:sub_1402ED190,0x002ED190,0x0011B8C0,strong,strong,
+engine/engine_calls.cpp:sub_140315740,0x00315740,,none,,manual RE
+engine/engine_calls.cpp:sub_1404CAE90,0x004CAE90,,none,,manual RE
+engine/engine_calls.cpp:sub_14050D990,0x0050D990,,none,,manual RE
+engine/engine_calls.cpp:sub_140510CE0,0x00510CE0,,none,,manual RE
+engine/engine_calls.cpp:sub_140513790,0x00513790,,none,,manual RE
+engine/engine_calls.cpp:sub_140618520,0x00618520,,none,,manual RE
+engine/engine_calls.cpp:sub_140798120,0x00798120,,none,,manual RE
+engine/engine_calls.cpp:sub_14086DC80,0x0086DC80,,none,,manual RE
+engine/engine_calls.cpp:sub_14087A320,0x0087A320,,none,,manual RE
+engine/engine_calls.cpp:sub_14087B080,0x0087B080,,none,,manual RE
+engine/engine_calls.cpp:sub_14087B1F0,0x0087B1F0,,none,,manual RE
+engine/engine_calls.cpp:sub_14087CFA0,0x0087CFA0,,none,,manual RE
+engine/engine_calls.cpp:sub_14087D050,0x0087D050,,none,,manual RE
+engine/engine_calls.cpp:sub_14087D190,0x0087D190,,none,,manual RE
+engine/engine_calls.cpp:sub_14087F9D0,0x0087F9D0,,none,,manual RE
+engine/engine_calls.cpp:sub_1408800C0,0x008800C0,,none,,manual RE
+engine/engine_calls.cpp:sub_140C45EA0,0x00C45EA0,,none,,manual RE
+engine/engine_calls.cpp:sub_140C57640,0x00C57640,,none,,manual RE
+engine/engine_calls.cpp:sub_140C5CE40,0x00C5CE40,,none,,manual RE
+engine/engine_calls.cpp:sub_140C62EE0,0x00C62EE0,,none,,manual RE
+engine/engine_calls.cpp:sub_140C73280,0x00C73280,,none,,manual RE
+engine/engine_calls.cpp:sub_140C73720,0x00C73720,,none,,manual RE
+engine/engine_calls.cpp:sub_140C7A370,0x00C7A370,,none,,manual RE
+engine/engine_calls.cpp:sub_140C7ABC0,0x00C7ABC0,,none,,manual RE
+engine/engine_calls.cpp:sub_140C7AD40,0x00C7AD40,,none,,manual RE
+engine/engine_calls.cpp:sub_140C98C40,0x00C98C40,,none,,manual RE
+engine/engine_calls.cpp:sub_140CA6220,0x00CA6220,,none,,manual RE
+engine/engine_calls.cpp:sub_140CA85C0,0x00CA85C0,,none,,manual RE
+engine/engine_calls.cpp:sub_140CBFBA0,0x00CBFBA0,,none,,manual RE
+engine/engine_calls.cpp:sub_140CC9150,0x00CC9150,,none,,manual RE
+engine/engine_calls.cpp:sub_140CCFD40,0x00CCFD40,,none,,manual RE
+engine/engine_calls.cpp:sub_140CD0A60,0x00CD0A60,0x00DFFD00,propagated,propagated,
+engine/engine_calls.cpp:sub_140CD1770,0x00CD1770,,none,,manual RE
+engine/engine_calls.cpp:sub_140CD9C30,0x00CD9C30,,none,,manual RE
+engine/engine_calls.cpp:sub_140CDFD30,0x00CDFD30,,none,,manual RE
+engine/engine_calls.cpp:sub_140CEEAB0,0x00CEEAB0,,none,,manual RE
+engine/engine_calls.cpp:sub_140CFA450,0x00CFA450,,none,,manual RE
+engine/engine_calls.cpp:sub_140D00D50,0x00D00D50,,none,,manual RE
+engine/engine_calls.cpp:sub_140D5BBB0,0x00D5BBB0,,none,,manual RE
+engine/engine_calls.cpp:sub_140E922D0,0x00E922D0,,none,,manual RE
+engine/engine_calls.cpp:sub_140E93340,0x00E93340,,none,,manual RE
+engine/engine_calls.cpp:sub_140E98250,0x00E98250,,none,,manual RE
+engine/engine_calls.cpp:sub_140ED44F0,0x00ED44F0,0x01086C80,propagated,propagated,
+engine/engine_calls.cpp:sub_141019DD0,0x01019DD0,,none,,manual RE
+engine/engine_calls.cpp:sub_141181060,0x01181060,,none,,manual RE
+engine/engine_calls.cpp:sub_141659060,0x01659060,,none,propagated,REJECTED: target claimed by multiple sources
+engine/engine_calls.cpp:sub_141663260,0x01663260,,none,,manual RE
+engine/engine_calls.cpp:sub_14167C200,0x0167C200,,none,,manual RE
+engine/engine_calls.h:sub_140502940,0x00502940,,none,,manual RE
+engine/engine_calls.h:sub_140880A10,0x00880A10,,none,,manual RE
+hooks/bsmodelproc_hook.cpp:sub_1402FC0E0,0x002FC0E0,,none,,manual RE
+hooks/cross_cell_gate.cpp:sub_140CF1130,0x00CF1130,,none,,manual RE
+hooks/cross_cell_gate.h:sub_14087B780,0x0087B780,,none,,manual RE
+hooks/cross_cell_gate.h:sub_140B63AA0,0x00B63AA0,,none,,manual RE
+hooks/cross_cell_gate.h:sub_140CE9940,0x00CE9940,,none,,manual RE
+hooks/cross_cell_gate.h:sub_140CF42F0,0x00CF42F0,,none,,manual RE
+hooks/cross_cell_gate.h:sub_140CFCC70,0x00CFCC70,,none,,manual RE
+hooks/engine_tracer.cpp:sub_1417B3E90,0x017B3E90,,none,,manual RE
+hooks/engine_tracer.cpp:sub_1421627B0,0x021627B0,,none,,manual RE
+hooks/engine_tracer.cpp:sub_142171050,0x02171050,,none,,manual RE
+hooks/engine_tracer.cpp:sub_1421C5CE0,0x021C5CE0,,none,,manual RE
+hooks/engine_tracer.cpp:sub_1421C6870,0x021C6870,,none,,manual RE
+hooks/equip_cycle.cpp:sub_140CE6DF0,0x00CE6DF0,,none,,manual RE
+hooks/equip_hook.cpp:sub_140436820,0x00436820,,none,,manual RE
+hooks/equip_hook.cpp:sub_1416D99E0,0x016D99E0,,none,,manual RE
+hooks/ghost_ai_action_execute.cpp:sub_140CEC490,0x00CEC490,,none,,manual RE
+hooks/ghost_ai_action_execute.cpp:sub_140D0CF70,0x00D0CF70,,none,,manual RE
+hooks/ghost_ai_action_execute.cpp:sub_140E69FC0,0x00E69FC0,,none,,manual RE
+hooks/ghost_ai_action_execute.cpp:sub_140ED71A0,0x00ED71A0,,none,,manual RE
+hooks/ghost_ai_action_execute.h:sub_140CE9280,0x00CE9280,,none,,manual RE
+hooks/ghost_ai_action_execute.h:sub_140DBFD20,0x00DBFD20,,none,,manual RE
+hooks/ghost_ai_havok_step.cpp:sub_1418B7D10,0x018B7D10,,none,,manual RE
+hooks/ghost_ai_movement.cpp:sub_140CA9520,0x00CA9520,,none,,manual RE
+hooks/ghost_ai_movement.h:sub_140DA9B30,0x00DA9B30,,none,,manual RE
+hooks/ghost_ai_movement.h:sub_140ED1BB0,0x00ED1BB0,,none,,manual RE
+hooks/ghost_ai_set_combat_target.cpp:sub_1407940A0,0x007940A0,,none,,manual RE
+hooks/ghost_ai_set_combat_target.cpp:sub_140794650,0x00794650,,none,,manual RE
+hooks/ghost_ai_set_combat_target.cpp:sub_14079C1C0,0x0079C1C0,,none,,manual RE
+hooks/ghost_combat_force.cpp:sub_140E42970,0x00E42970,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_14087A470,0x0087A470,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140BF9460,0x00BF9460,0x00CED400,strong,strong,
+hooks/ghost_global_walker_guards.cpp:sub_140C00590,0x00C00590,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140C58150,0x00C58150,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140D0B740,0x00D0B740,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140D2C3E0,0x00D2C3E0,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140DAE160,0x00DAE160,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140E93370,0x00E93370,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140E93AB0,0x00E93AB0,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140E9E1D0,0x00E9E1D0,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140E9E2B0,0x00E9E2B0,,none,,manual RE
+hooks/ghost_global_walker_guards.cpp:sub_140F5CB40,0x00F5CB40,,none,,manual RE
+hooks/ghost_global_walker_guards.h:sub_140E98860,0x00E98860,,none,,manual RE
+hooks/ghost_hostility_guard.cpp:sub_140308AA0,0x00308AA0,,none,,manual RE
+hooks/ghost_hostility_guard.cpp:sub_1404C1F90,0x004C1F90,,none,,manual RE
+hooks/ghost_hostility_guard.cpp:sub_140D4CAE0,0x00D4CAE0,,none,,manual RE
+hooks/ghost_hostility_guard.cpp:sub_140D4CE10,0x00D4CE10,,none,,manual RE
+hooks/ghost_hostility_guard.cpp:sub_140DA6380,0x00DA6380,,none,,manual RE
+hooks/ghost_hostility_guard_layer1.cpp:sub_140C9FBA0,0x00C9FBA0,,none,,manual RE
+hooks/ghost_is_attachable.cpp:sub_14018BA40,0x0018BA40,,none,,manual RE
+hooks/ghost_is_attachable.cpp:sub_140312690,0x00312690,,none,,manual RE
+hooks/ghost_vt197_guard.cpp:sub_140519F10,0x00519F10,,none,,manual RE
+hooks/hp_bar_hook.cpp:sub_140A34090,0x00A34090,,none,,manual RE
+hooks/hp_bar_hook.cpp:sub_140A351F0,0x00A351F0,,none,,manual RE
+hooks/hp_bar_hook.cpp:sub_140C63130,0x00C63130,,none,,manual RE
+hooks/hp_bar_hook.h:sub_1409C28A0,0x009C28A0,,none,,manual RE
+hooks/install_all.cpp:sub_140513760,0x00513760,,none,,manual RE
+hooks/install_all.cpp:sub_14079C234,0x0079C234,,none,,manual RE
+hooks/install_all.cpp:sub_14087A8E0,0x0087A8E0,,none,,manual RE
+hooks/lock_hook.h:sub_140B81EB0,0x00B81EB0,,none,,manual RE
+hooks/lock_hook.h:sub_140B92A10,0x00B92A10,,none,,manual RE
+hooks/lock_hook.h:sub_140CEE8F0,0x00CEE8F0,,none,,manual RE
+hooks/lock_hook.h:sub_14106BE80,0x0106BE80,0x0129D520,exact,exact,
+hooks/main_menu_hook.h:sub_141073DC0,0x01073DC0,,none,,manual RE
+hooks/npc_ai_suppress.cpp:sub_140C96970,0x00C96970,,none,,manual RE
+hooks/npc_ai_suppress.cpp:sub_140CC8920,0x00CC8920,,none,,manual RE
+hooks/npc_ai_suppress.cpp:sub_140E99350,0x00E99350,,none,,manual RE
+hooks/npc_ai_suppress.cpp:sub_140E9A3E0,0x00E9A3E0,,none,,manual RE
+hooks/npc_hp_probe.cpp:sub_140263120,0x00263120,,none,propagated,REJECTED: target claimed by multiple sources
+hooks/pickup_hook.h:sub_14103D3E0,0x0103D3E0,0x012640B0,exact,exact,
+hooks/put_hook.h:sub_14031C310,0x0031C310,,none,,manual RE
+main_thread_dispatch.cpp:sub_141659850,0x01659850,,none,,manual RE
+main_thread_dispatch.h:sub_1404626A0,0x004626A0,,none,,manual RE
+main_thread_dispatch.h:sub_14182FFD0,0x0182FFD0,,none,,manual RE
+native/ni_alloc_tracker.h:sub_1417B3480,0x017B3480,,none,,manual RE
+native/ni_offsets.h:sub_140255BA0,0x00255BA0,,none,,manual RE
+native/ni_offsets.h:sub_140256070,0x00256070,,none,,manual RE
+native/ni_offsets.h:sub_14026E1C0,0x0026E1C0,,none,,manual RE
+native/ni_offsets.h:sub_140372CC0,0x00372CC0,,none,,manual RE
+native/ni_offsets.h:sub_1406B60C0,0x006B60C0,0x006473E0,propagated,propagated,
+native/ni_offsets.h:sub_140C322C0,0x00C322C0,0x00D379E0,exact,exact,
+native/ni_offsets.h:sub_1416BCD40,0x016BCD40,,none,,manual RE
+native/ni_offsets.h:sub_1416BDEF0,0x016BDEF0,,none,,manual RE
+native/ni_offsets.h:sub_1416BDFE0,0x016BDFE0,,none,,manual RE
+native/ni_offsets.h:sub_1416BE170,0x016BE170,0x01B98920,propagated,propagated,
+native/ni_offsets.h:sub_1416BE2B0,0x016BE2B0,0x01B98A10,propagated,propagated,
+native/ni_offsets.h:sub_1416BE390,0x016BE390,,none,,manual RE
+native/ni_offsets.h:sub_1416C8050,0x016C8050,,none,,manual RE
+native/ni_offsets.h:sub_1416CE630,0x016CE630,,none,,manual RE
+native/ni_offsets.h:sub_1416DA0A0,0x016DA0A0,,none,,manual RE
+native/ni_offsets.h:sub_1417A4A30,0x017A4A30,,none,,manual RE
+native/ni_offsets.h:sub_1417A9620,0x017A9620,,none,,manual RE
+native/ni_offsets.h:sub_1417E63A0,0x017E63A0,,none,,manual RE
+native/ni_offsets.h:sub_1417F0550,0x017F0550,,none,,manual RE
+native/ni_offsets.h:sub_14182DFC0,0x0182DFC0,,none,,manual RE
+native/ni_offsets.h:sub_14184EF10,0x0184EF10,,none,,manual RE
+native/ni_offsets.h:sub_142161B10,0x02161B10,,none,,manual RE
+native/ni_offsets.h:sub_142162340,0x02162340,,none,,manual RE
+native/ni_offsets.h:sub_142169AD0,0x02169AD0,,none,,manual RE
+native/ni_offsets.h:sub_14216F9C0,0x0216F9C0,,none,,manual RE
+native/ni_offsets.h:sub_142171620,0x02171620,,none,,manual RE
+native/ni_offsets.h:sub_142172540,0x02172540,,none,,manual RE
+native/ni_offsets.h:sub_142179140,0x02179140,,none,,manual RE
+native/ni_offsets.h:sub_1422A8660,0x022A8660,,none,,manual RE
+native/scene_inject.cpp:sub_140248F40,0x00248F40,,none,,manual RE
+native/scene_inject.cpp:sub_14024B610,0x0024B610,,none,,manual RE
+native/scene_inject.cpp:sub_14033E5C0,0x0033E5C0,,none,,manual RE
+native/scene_inject.cpp:sub_14033E670,0x0033E670,,none,,manual RE
+native/scene_inject.cpp:sub_1416BA8E0,0x016BA8E0,,none,,manual RE
+native/scene_inject.cpp:sub_1416BAA10,0x016BAA10,,none,,manual RE
+native/scene_inject.cpp:sub_1416BABF0,0x016BABF0,,none,,manual RE
+native/scene_inject.cpp:sub_1416BC860,0x016BC860,,none,,manual RE
+native/scene_inject.cpp:sub_1416BDA20,0x016BDA20,,none,,manual RE
+native/scene_inject.cpp:sub_1416BDB90,0x016BDB90,,none,,manual RE
+native/scene_inject.cpp:sub_1416C7510,0x016C7510,,none,,manual RE
+native/scene_inject.cpp:sub_1416C8C40,0x016C8C40,,none,,manual RE
+native/scene_inject.cpp:sub_1416D5600,0x016D5600,,none,,manual RE
+native/scene_inject.cpp:sub_1416D7640,0x016D7640,,none,,manual RE
+native/scene_inject.cpp:sub_1416D7B30,0x016D7B30,,none,,manual RE
+native/scene_inject.cpp:sub_142174C80,0x02174C80,,none,,manual RE
+native/synthetic_refr.h:sub_1402480F0,0x002480F0,,none,,manual RE
+native/synthetic_refr.h:sub_14105C2F0,0x0105C2F0,,none,,manual RE
+render/body_render.cpp:sub_1421DC480,0x021DC480,,none,,manual RE
+render/body_render.cpp:sub_14221E6A0,0x0221E6A0,,none,,manual RE
+render/scene_render_hook.h:sub_140C38910,0x00C38910,,none,,manual RE

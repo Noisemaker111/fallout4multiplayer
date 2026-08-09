@@ -1,0 +1,141 @@
+# =============================================================================
+# fallout4multiplayer — root .gitignore
+# Rule: commit our source + docs only. Never Bethesda IP, secrets, or huge binaries.
+# =============================================================================
+
+# Nested git metadata (preserved locally if present; not part of this monorepo)
+**/.git-thepie88-backup/
+**/FO4_Wrld_git_backup/
+/FO4_Wrld_git_backup/
+**/.git/
+
+# Third-party historical archive (clone cokwa/F4MP-Archive separately if needed)
+/F4MP-Archive/
+
+# -- OS / IDE -----------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -- Secrets ------------------------------------------------------------------
+*.local
+*.env
+.env.*
+secrets/
+**/auth.token
+**/.discord_token.local
+
+# -- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# -- Build artifacts ----------------------------------------------------------
+**/build/
+**/build-minimal/
+**/CMakeCache.txt
+**/CMakeFiles/
+**/CMakeUserPresets.json
+**/*.obj
+**/*.lib
+**/*.exp
+**/*.pdb
+**/*.ilk
+**/*.dll
+**/*.exe
+!**/*.bat
+!**/*.ps1
+!**/*.cmd
+# Keep intentional small scripts; never ship FoM/game binaries via git
+**/FoM.exe
+**/fom_bridge_test.exe
+steam_appid.txt
+
+# -- Player pack output (rebuild with Build-PlayerPack.ps1) -------------------
+FO4_Wrld/tools/player_setup/dist/
+FO4_Wrld/tools/player_setup/payload/*.dll
+FO4_Wrld/tools/player_setup/payload/*.exe
+FO4_Wrld/tools/player_setup/steamworks/
+
+# -- Nested / vendored (fetch or submodule separately) ------------------------
+FO4_Wrld/fw_native/deps/MinHook/
+FO4_Wrld/CommonLibF4/
+FO4_Wrld/tools/addresslib/
+FO4_Wrld/tools/steamcmd/
+FO4_Wrld/tools/PIEassetDecompiler/
+**/goldberg/
+**/steam_settings/
+**/steam_api64.dll
+**/steamclient*.dll
+
+# -- Bethesda / game IP -------------------------------------------------------
+**/Fallout4.exe
+**/Fallout4Launcher.exe
+**/Fallout4Custom.ini
+**/Fallout4Prefs.ini
+**/*.ba2
+**/*.fos
+**/*.bak
+FO4_Wrld/FO4_b/
+FO4_b/
+
+# -- Runtime logs / local config ----------------------------------------------
+*.log
+fw_config.ini
+**/state_snapshot.json*
+FO4_Wrld/server.log
+FO4_Wrld/net/state_snapshot.json*
+
+# -- IDA / RE scratch / large regenerables ------------------------------------
+*.i64
+*.idb
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+FO4_Wrld/re/*
+!FO4_Wrld/re/M8*
+FO4_Wrld/fw_native/re/
+FO4_Wrld/ttd_local/
+FO4_Wrld/ttd_traces/
+FO4_Wrld/frida/*.frida
+FO4_Wrld/frida/*.cache
+
+# -- Game asset extracts (Bethesda IP) ----------------------------------------
+FO4_Wrld/fw_native/assets/raw/
+
+# -- Media --------------------------------------------------------------------
+*.mp4
+
+# -- Claude / agent session ---------------------------------------------------
+.claude/
+.claude/**
+
+# -- Personal / local-only docs -----------------------------------------------
+NPCs.md
+tool-paths.txt
+FO4_Wrld/tool-paths.txt
+fallout_multiplayer_project_brainstorm.md
+FO4_Wrld/fw_native/docs/B5_*.md
+FO4_Wrld/fw_native/docs/DEVIAZIONE_*.md
+FO4_Wrld/fw_native/docs/PIVOT_*.md
+FO4_Wrld/fw_native/docs/tools-da-usare.md
+FO4_Wrld/net/legacy/
+
+# -- Audit scratch at FO4_Wrld root -------------------------------------------
+FO4_Wrld/audit*.txt
+FO4_Wrld/capture*.txt
+
+# -- Agent / worktree noise ---------------------------------------------------
+.grok/
+**/.mypy_cache/
+
+FO4_Wrld/tools/pos_hotpath_bench/rust/target/

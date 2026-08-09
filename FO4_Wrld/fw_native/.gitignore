@@ -1,0 +1,12 @@
+build/
+build-debug/
+build-minimal/
+# MinHook is vendored by build.bat (git clone), not tracked here.
+deps/
+*.obj
+*.exp
+*.lib
+*.pdb
+*.ilk
+CMakeUserPresets.json
+.vs/

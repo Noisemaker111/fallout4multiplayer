@@ -1,0 +1,250 @@
+tier,value,name,source,comment,ported_addr,verified
+FIELD,0x14,FORMID_OFF,offsets.h,// TESForm::formID      (u32),0x14,commonlib
+FIELD,0x10,FLAGS_OFF,offsets.h,// TESForm::flags       (u32),0x10,commonlib
+FIELD,0xC0,ROT_OFF,offsets.h,"// AngleX/Y/Z, radians  (3x f32)",0xC0,commonlib
+FIELD,0xD0,POS_OFF,offsets.h,// X/Y/Z                (3x f32),0xD0,commonlib
+FIELD,0xB8,PARENT_CELL_OFF,offsets.h,// TESObjectCELL*,0xB8,commonlib
+FIELD,0xE0,BASE_FORM_OFF,offsets.h,// TESForm* (baseForm),0xE0,commonlib
+FIELD,0xF8,REFR_INV_LIST_OFF,offsets.h,// REFR → BGSInventoryList*,0xF8,commonlib
+FIELD,0x58,INVLIST_ENTRIES_OFF,offsets.h,// list → entries ptr,0x58,commonlib
+FIELD,0x68,INVLIST_COUNT_OFF,offsets.h,// list → u32 count,0x68,commonlib
+FIELD,0x10,INVENTORY_ITEM_STRIDE,offsets.h,// 16 bytes,0x10,commonlib
+FIELD,0x00,INVENTORY_ITEM_OBJ_OFF,offsets.h,// entry → TESBoundObject*,0x00,commonlib
+FIELD,0x30,TESGLOBAL_VALUE_OFF,offsets.h,,0x30,commonlib
+FIELD,0xA0,NI_AV_WORLD_TRANSLATE_OFF,offsets.h,// NiPoint3  (0xC B),0xA0,commonlib
+FIELD,0x160,NI_CAMERA_FRUSTUM_OFF,offsets.h,// 352,,
+FIELD,0x10,NI_FRUSTUM_NEAR_OFF,offsets.h,,,
+FIELD,0x14,NI_FRUSTUM_FAR_OFF,offsets.h,,,
+FIELD,0xE0,PLAYER_CAMERA_STATES_OFF,offsets.h,,0xE0,commonlib
+FIELD,0x1A0,PLAYER_CAMERA_ACTIVE_OFF,offsets.h,,0x1A0,commonlib
+FIELD,0x188,PLAYER_CAMERA_BUF_POS_OFF,offsets.h,// NiPoint3 = 3 f32,0x188,commonlib
+FIELD,0x1A7,PLAYER_CAMERA_BUF_VAL_OFF,offsets.h,// u8 flag,0x1A7,commonlib
+FIELD,0x50,TES_STATE_NICAM_OFF,offsets.h,,,
+FIELD,288,NI_CAMERA_VIEWPROJ_OFF,offsets.h,,,
+FIELD,0x2A8,TESOBJECTARMO_ADDON_ARR_OFF,offsets.h,,0x2A8,commonlib
+FIELD,0x2B8,TESOBJECTARMO_ADDON_COUNT_OFF,offsets.h,,0x2B8,commonlib
+FIELD,0x10,TESOBJECTARMO_ADDON_ENTRY_STRIDE,offsets.h,,0x10,commonlib
+FIELD,0x08,TESOBJECTARMO_ADDON_ARMA_PTR_OFF,offsets.h,,0x08,commonlib
+FIELD,0x2A6,TESOBJECTARMO_DEFAULT_PRIORITY_OFF,offsets.h,// u16,0x2A6,commonlib
+FIELD,0x00,TESOBJECTARMO_ADDON_ENTRY_PRIORITY_OFF,offsets.h,// u16 at start of each 16-byte addon entry,0x00,commonlib
+FIELD,0x08,TESMODEL_PATH_BSFIXEDSTR_OFF,offsets.h,,0x08,commonlib
+FIELD,0x1E8,TESOBJECTARMO_BIPED_SLOTS_OFF,offsets.h,// u32 bitmask,0x1E8,commonlib
+FIELD,0x18,BSFIXEDSTRING_CSTR_OFF,offsets.h,,,
+FIELD,0x48,IANIMGRAPHHOLDER_OFF,offsets.h,// Actor → IAnimationGraphManagerHolder sub-object,0x48,commonlib
+FIELD,0xF0,LOADED_REF_DATA_OFF,offsets.h,// Actor → LoadedRefData*,0xF0,commonlib
+FIELD,0x08,LOADED_REF_DATA_3D_OFF,offsets.h,// LoadedRefData → NiAVObject*,,
+FIELD,0x60,NI_AV_LOCAL_TRANSLATE_OFF,offsets.h,,0x60,commonlib
+FIELD,135939,COMBAT_MANAGER_BAG_INDEX,offsets.h,,,
+FIELD,0x328,ACTOR_AIPROCESS_OFF,offsets.h,,0x328,commonlib
+FIELD,0x40,AIPROCESS_CONTROLLER_OFF,offsets.h,,,
+FIELD,0x28,FIXED_SELECTOR_BLOCK_SIZE,offsets.h,,,
+FIELD,0x120,CONTROLLER_SPINLOCK_OFF,offsets.h,,,
+FIELD,0x20,CONTROLLER_KNOWN_TGT_BASE_OFF,offsets.h,// = 32,,
+FIELD,0x30,CONTROLLER_KNOWN_TGT_COUNT_OFF,offsets.h,// = 48,,
+FIELD,24,KNOWN_TGT_ENTRY_STRIDE,offsets.h,// 24-byte records,,
+FIELD,0x100,AIPROCESS_SELECTORS_BASE_OFF,offsets.h,,,
+FIELD,0x110,AIPROCESS_SELECTORS_COUNT_OFF,offsets.h,,,
+FIELD,0x178,AIPROCESS_CACHED_ATTACKER_OFF,offsets.h,,,
+FIELD,0x180,AIPROCESS_CACHED_TARGET_OFF,offsets.h,,,
+FIELD,0x08,NIREFOBJECT_REFCOUNT_OFF,offsets.h,,0x08,commonlib
+FIELD,0x68,AIPROCESS_TARGET_HANDLE_1_OFF,offsets.h,,,
+FIELD,0x6C,AIPROCESS_TARGET_HANDLE_2_OFF,offsets.h,,,
+NOVEL,0x00C612E0,KILL_ENGINE_RVA,offsets.h,// sub_140C612E0,,
+KNOWN,0x00152C90,LOOKUP_BY_FORMID_RVA,offsets.h,allForms hash free fn,0x00152C90,disasm
+KNOWN,0x02564838,TESOBJECTREFR_VTABLE_RVA,offsets.h,,0x02C87AE8,addresslib
+KNOWN,0x032D2260,PLAYER_SINGLETON_RVA,offsets.h,,0x05AA4388,addresslib
+NOVEL,0x00349B30,INVITEM_GET_COUNT_RVA,offsets.h,// entry → int count,,
+KNOWN,0x00B01290,MAIN_MENU_REGISTRAR_RVA,offsets.h,,0x00BBC050,matcher-exact
+KNOWN,0x00511F10,BGS_INV_LIST_MATERIALIZE_RVA,offsets.h,,,
+KNOWN,0x00313570,TESFORM_GET_COMPONENT_RVA,offsets.h,,,
+KNOWN,0x0021E230,REFHANDLE_RESOLVE_RVA,offsets.h,// sub_14021E230,0x0000AC90,addresslib
+NOVEL,0x003478E0,INV_ENTRY_TO_FORM_RVA,offsets.h,// sub_1403478E0,,
+KNOWN,0x030E1370,FORM_CACHE_SINGLETON_RVA,offsets.h,// qword_1430E1370,0x058D36C8,addresslib
+KNOWN,0x011735A0,ENGINE_ADD_ITEM_RVA,offsets.h,,,
+KNOWN,0x011825A0,ENGINE_REMOVE_ITEM_RVA,offsets.h,,,
+NOVEL,0x00514180,ENGINE_ACTIVATE_WORKER_RVA,offsets.h,,,
+KNOWN,0x01158640,ENGINE_LOCK_PAPYRUS_APPLY_RVA,offsets.h,,,
+KNOWN,0x00BF93B0,LOAD_GAME_FN_RVA,offsets.h,// sub_140BF93B0,0x00CED400,matcher-strong
+KNOWN,0x0329D508,SAVE_LOAD_MGR_SINGLETON_RVA,offsets.h,// qword_14329D508,,
+NOVEL,0x01084830,LOAD_PRECOND_FN_RVA,offsets.h,// sub_141084830,,
+KNOWN,0x031E5A90,SAVE_DEV_SINGLETON_RVA,offsets.h,// qword_1431E5A90,,
+NOVEL,0x00C37200,LOAD_PREP_FN_RVA,offsets.h,// sub_140C37200,,
+NOVEL,0x032D1FEA,LOAD_IN_PROGRESS_FLAG_RVA,offsets.h,// byte_1432D1FEA,,
+NOVEL,0x00C38F80,SCENE_RENDER_RVA,offsets.h,,,
+KNOWN,0x030DBD58,PLAYER_CAMERA_SINGLETON_RVA,offsets.h,,0x058CEB28,addresslib
+KNOWN,0x0267DD50,NI_CAMERA_VTABLE_RVA,offsets.h,,0x02E15E38,addresslib
+NOVEL,0x032D25D0,MAIN_CULLING_CAMERA_INSTANCE_RVA,offsets.h,,,
+NOVEL,0x032D2590,MAIN_CULLING_CAMERA_PTR_SLOT_RVA,offsets.h,,,
+KNOWN,0x0255DB08,MAIN_CULLING_CAMERA_VTABLE_RVA,offsets.h,,,
+NOVEL,0x0140B0E0,PLACE_AT_ME_RVA,offsets.h,Papyrus PlaceAtMe native,0x0140B0E0,disasm
+NOVEL,0x0081D3D0,SET_GRAPH_VAR_BOOL_RVA,offsets.h,SetGraphVariableBool free,0x0081D3D0,disasm
+NOVEL,0x0081D410,SET_GRAPH_VAR_FLOAT_RVA,offsets.h,SetGraphVariableFloat free,0x0081D410,disasm
+NOVEL,0x01B41E70,BSFIXEDSTRING_MAKE_RVA,offsets.h,same as FIXEDSTR_CREATE,0x01B41E70,disasm
+NOVEL,0x00C76590,ENGINE_ENABLE_AI_RVA,offsets.h,,,
+NOVEL,0x00C60BE0,ACTOR_ATOMIC_TELEPORT_RVA,offsets.h,,,
+KNOWN,0x018763E0,NIAV_SET_MOTION_TYPE_RVA,offsets.h,,,
+NOVEL,0x00E65820,AIM_SET_TARGET_RVA,offsets.h,,,
+NOVEL,0x00CD1830,WEAPON_STATE_CLASS_SETTER_RVA,offsets.h,,,
+NOVEL,0x00CD0A60,ACTOR_RESOLVE_WEAPON_SLOT_RVA,offsets.h,,,
+NOVEL,0x02578C28,COMBAT_AIM_CONTROLLER_VTBL_RVA,offsets.h,,,
+NOVEL,0x00CCF810,ENTER_COMBAT_RVA,offsets.h,,,
+NOVEL,0x00ED2390,COMBAT_PROMOTER_FRESH_RVA,offsets.h,// sub_140ED2390,,
+NOVEL,0x00E653D0,COMBAT_AIM_CONTROLLER_CTOR_RVA,offsets.h,// sub_140E653D0,,
+NOVEL,0x00C60630,ACTOR_SETPOS_VT202_RVA,offsets.h,,,
+NOVEL,0x0087AB30,AIPROCESS_SET_COMBAT_TARGET_RVA,offsets.h,,,
+NOVEL,0x00CF6100,COMBAT_ENGAGE_GATE_RVA,offsets.h,,,
+NOVEL,0x00DFF6B0,WEAPON_FIRE_HANDLER_RVA,offsets.h,,,
+NOVEL,0x00DC80B0,MOVCTRL_SET_DISABLED_RVA,offsets.h,,,
+NOVEL,0x030DBF78,PROCMGR_BAG_RVA,offsets.h,// qword_1430DBF78,,
+KNOWN,0x0022C8B0,HANDLE_GET_OR_ALLOC_RVA,offsets.h,// sub_14022C8B0,0x0000AAC0,addresslib
+NOVEL,0x00E91D70,ADD_COMBAT_TARGET_RVA,offsets.h,// sub_140E91D70,,
+NOVEL,0x00EE9780,FIXED_SELECTOR_CTOR_RVA,offsets.h,// sub_140EE9780,,
+KNOWN,0x016579C0,ENGINE_HEAP_ALLOC_RVA,offsets.h,// sub_1416579C0,0x01B0EE10,matcher-exact
+KNOWN,0x03E5E0F0,ENGINE_HEAP_DESC_RVA,offsets.h,// &unk_143E5E0F0,,
+NOVEL,0x016592C0,LOCK_RELEASE_WRITE_RVA,offsets.h,,,
+NOVEL,0x030DA390,HANDLE_TABLE_BASE_RVA,offsets.h,,,
+NOVEL,0x00E929C0,COMBATCTRL_ENSURE_KNOWN_RVA,offsets.h,// sub_140E929C0,,
+NOVEL,0x00CD1770,engine/engine_calls.cpp:sub_140CD1770,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CEEAB0,engine/engine_calls.cpp:sub_140CEEAB0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CFA450,engine/engine_calls.cpp:sub_140CFA450,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00272730,engine/engine_calls.cpp:sub_140272730,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00519410,engine/engine_calls.cpp:sub_140519410,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00313230,engine/engine_calls.cpp:sub_140313230,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CA85C0,engine/engine_calls.cpp:sub_140CA85C0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00315740,engine/engine_calls.cpp:sub_140315740,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x01659060,engine/engine_calls.cpp:sub_141659060,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C5CE40,engine/engine_calls.cpp:sub_140C5CE40,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00513790,engine/engine_calls.cpp:sub_140513790,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x004F9E60,engine/engine_calls.cpp:sub_1404F9E60,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C57640,engine/engine_calls.cpp:sub_140C57640,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x002A0540,engine/engine_calls.cpp:sub_1402A0540,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00E922D0,engine/engine_calls.cpp:sub_140E922D0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C73280,engine/engine_calls.cpp:sub_140C73280,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x0087B1F0,engine/engine_calls.cpp:sub_14087B1F0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x0050D990,engine/engine_calls.cpp:sub_14050D990,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00618520,engine/engine_calls.cpp:sub_140618520,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00D5BBB0,engine/engine_calls.cpp:sub_140D5BBB0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x017A0A30,engine/engine_calls.cpp:sub_1417A0A30,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C62EE0,engine/engine_calls.cpp:sub_140C62EE0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x002ED190,engine/engine_calls.cpp:sub_1402ED190,engine/engine_calls.cpp,engine/engine_calls.cpp,0x0011B8C0,matcher-strong
+NOVEL,0x00CC9150,engine/engine_calls.cpp:sub_140CC9150,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C7AD40,engine/engine_calls.cpp:sub_140C7AD40,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C7ABC0,engine/engine_calls.cpp:sub_140C7ABC0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x01019DD0,engine/engine_calls.cpp:sub_141019DD0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CCD380,engine/engine_calls.cpp:sub_140CCD380,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CDFD30,engine/engine_calls.cpp:sub_140CDFD30,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x01663260,engine/engine_calls.cpp:sub_141663260,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00510CE0,engine/engine_calls.cpp:sub_140510CE0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00507660,engine/engine_calls.cpp:sub_140507660,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00C45EA0,engine/engine_calls.cpp:sub_140C45EA0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x0022CC20,engine/engine_calls.cpp:sub_14022CC20,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x0087F9D0,engine/engine_calls.cpp:sub_14087F9D0,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00CD9C30,engine/engine_calls.cpp:sub_140CD9C30,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x0087B080,engine/engine_calls.cpp:sub_14087B080,engine/engine_calls.cpp,engine/engine_calls.cpp,,
+NOVEL,0x00502940,engine/engine_calls.h:sub_140502940,engine/engine_calls.h,engine/engine_calls.h,,
+NOVEL,0x00576030,engine/engine_calls.h:sub_140576030,engine/engine_calls.h,engine/engine_calls.h,,
+NOVEL,0x00575E20,engine/engine_calls.h:sub_140575E20,engine/engine_calls.h,engine/engine_calls.h,,
+NOVEL,0x00E98250,engine/engine_calls.h:sub_140E98250,engine/engine_calls.h,engine/engine_calls.h,,
+NOVEL,0x00880A10,engine/engine_calls.h:sub_140880A10,engine/engine_calls.h,engine/engine_calls.h,,
+NOVEL,0x003095C0,ghost/actor_hijack.cpp:sub_1403095C0,ghost/actor_hijack.cpp,ghost/actor_hijack.cpp,,
+NOVEL,0x009C28A0,hooks/install_all.cpp:sub_1409C28A0,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x0087A8E0,hooks/install_all.cpp:sub_14087A8E0,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x0079C234,hooks/install_all.cpp:sub_14079C234,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x0087D190,hooks/install_all.cpp:sub_14087D190,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x0086DC80,hooks/install_all.cpp:sub_14086DC80,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x00CE9280,hooks/install_all.cpp:sub_140CE9280,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x00CEC490,hooks/install_all.cpp:sub_140CEC490,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x00D0CF70,hooks/install_all.cpp:sub_140D0CF70,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x00308AA0,hooks/install_all.cpp:sub_140308AA0,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x008800C0,hooks/install_all.cpp:sub_1408800C0,hooks/install_all.cpp,hooks/install_all.cpp,,
+NOVEL,0x017B3E90,hooks/install_all.cpp:sub_1417B3E90,hooks/install_all.cpp,hooks/install_all.cpp,,
+KNOWN,0x01073DC0,hooks/main_menu_hook.h:sub_141073DC0,hooks/main_menu_hook.h,hooks/main_menu_hook.h,,
+NOVEL,0x004626A0,main_thread_dispatch.h:sub_1404626A0,main_thread_dispatch.h,main_thread_dispatch.h,,
+NOVEL,0x0182FFD0,main_thread_dispatch.h:sub_14182FFD0,main_thread_dispatch.h,main_thread_dispatch.h,,
+NOVEL,0x016BDEF0,native/ni_offsets.h:sub_1416BDEF0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BDFE0,native/ni_offsets.h:sub_1416BDFE0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016C8CD0,native/ni_offsets.h:sub_1416C8CD0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02179140,native/ni_offsets.h:sub_142179140,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x00C322C0,native/ni_offsets.h:sub_140C322C0,native/ni_offsets.h,native/ni_offsets.h,0x00D379E0,matcher-exact
+NOVEL,0x016C8B60,native/ni_offsets.h:sub_1416C8B60,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BE170,native/ni_offsets.h:sub_1416BE170,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BE2B0,native/ni_offsets.h:sub_1416BE2B0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BE390,native/ni_offsets.h:sub_1416BE390,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BCD40,native/ni_offsets.h:sub_1416BCD40,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0167BEF0,native/ni_offsets.h:sub_14167BEF0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016E4090,native/ni_offsets.h:sub_1416E4090,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017F0550,native/ni_offsets.h:sub_1417F0550,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017E63A0,native/ni_offsets.h:sub_1417E63A0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x00372CC0,native/ni_offsets.h:sub_140372CC0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x006B60C0,native/ni_offsets.h:sub_1406B60C0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016DA0A0,native/ni_offsets.h:sub_1416DA0A0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016CE630,native/ni_offsets.h:sub_1416CE630,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0184EF10,native/ni_offsets.h:sub_14184EF10,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016D5930,native/ni_offsets.h:sub_1416D5930,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016C8050,native/ni_offsets.h:sub_1416C8050,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0026E1C0,native/ni_offsets.h:sub_14026E1C0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016A6D00,native/ni_offsets.h:sub_1416A6D00,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017B3480,native/ni_offsets.h:sub_1417B3480,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0033EC90,native/ni_offsets.h:sub_14033EC90,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0033D1E0,native/ni_offsets.h:sub_14033D1E0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x00458740,native/ni_offsets.h:sub_140458740,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017B4A60,native/ni_offsets.h:sub_1417B4A60,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x022A8660,native/ni_offsets.h:sub_1422A8660,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x00255BA0,native/ni_offsets.h:sub_140255BA0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x00256070,native/ni_offsets.h:sub_140256070,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017A9620,native/ni_offsets.h:sub_1417A9620,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02162340,native/ni_offsets.h:sub_142162340,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x017A4A30,native/ni_offsets.h:sub_1417A4A30,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02169AD0,native/ni_offsets.h:sub_142169AD0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0182DFC0,native/ni_offsets.h:sub_14182DFC0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0216F9C0,native/ni_offsets.h:sub_14216F9C0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02161B10,native/ni_offsets.h:sub_142161B10,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x016BD6F0,native/ni_offsets.h:sub_1416BD6F0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02171050,native/ni_offsets.h:sub_142171050,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0216ED10,native/ni_offsets.h:sub_14216ED10,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x021627B0,native/ni_offsets.h:sub_1421627B0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x021C6870,native/ni_offsets.h:sub_1421C6870,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x0217A910,native/ni_offsets.h:sub_14217A910,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02171620,native/ni_offsets.h:sub_142171620,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x02172540,native/ni_offsets.h:sub_142172540,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x021F9F00,native/ni_offsets.h:sub_1421F9F00,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x021C5CE0,native/ni_offsets.h:sub_1421C5CE0,native/ni_offsets.h,native/ni_offsets.h,,
+NOVEL,0x003F85E0,native/scene_inject.cpp:sub_1403F85E0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016C7510,native/scene_inject.cpp:sub_1416C7510,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016D7B30,native/scene_inject.cpp:sub_1416D7B30,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016D7640,native/scene_inject.cpp:sub_1416D7640,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x00359870,native/scene_inject.cpp:sub_140359870,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BA8E0,native/scene_inject.cpp:sub_1416BA8E0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BDA20,native/scene_inject.cpp:sub_1416BDA20,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x02174C80,native/scene_inject.cpp:sub_142174C80,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BDB90,native/scene_inject.cpp:sub_1416BDB90,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016D99E0,native/scene_inject.cpp:sub_1416D99E0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BAA10,native/scene_inject.cpp:sub_1416BAA10,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BABF0,native/scene_inject.cpp:sub_1416BABF0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BC860,native/scene_inject.cpp:sub_1416BC860,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016BA800,native/scene_inject.cpp:sub_1416BA800,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x0024B610,native/scene_inject.cpp:sub_14024B610,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x00453F70,native/scene_inject.cpp:sub_140453F70,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x0033E670,native/scene_inject.cpp:sub_14033E670,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x0033E5C0,native/scene_inject.cpp:sub_14033E5C0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016D5600,native/scene_inject.cpp:sub_1416D5600,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x00462370,native/scene_inject.cpp:sub_140462370,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x00248F40,native/scene_inject.cpp:sub_140248F40,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016C8CC0,native/scene_inject.cpp:sub_1416C8CC0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x016C8C40,native/scene_inject.cpp:sub_1416C8C40,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x002FC0E0,native/scene_inject.cpp:sub_1402FC0E0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x01730390,native/scene_inject.cpp:sub_141730390,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x00434DA0,native/scene_inject.cpp:sub_140434DA0,native/scene_inject.cpp,native/scene_inject.cpp,,
+NOVEL,0x004580C0,native/synthetic_refr.cpp:sub_1404580C0,native/synthetic_refr.cpp,native/synthetic_refr.cpp,,
+NOVEL,0x00513760,native/synthetic_refr.h:sub_140513760,native/synthetic_refr.h,native/synthetic_refr.h,,
+NOVEL,0x004F1160,native/synthetic_refr.h:sub_1404F1160,native/synthetic_refr.h,native/synthetic_refr.h,,
+NOVEL,0x0105C2F0,native/synthetic_refr.h:sub_14105C2F0,native/synthetic_refr.h,native/synthetic_refr.h,,
+NOVEL,0x002480F0,native/synthetic_refr.h:sub_1402480F0,native/synthetic_refr.h,native/synthetic_refr.h,,
+NOVEL,0x021DC480,render/body_render.cpp:sub_1421DC480,render/body_render.cpp,render/body_render.cpp,,
+NOVEL,0x0221E6A0,render/body_render.cpp:sub_14221E6A0,render/body_render.cpp,render/body_render.cpp,,
+NOVEL,0x00C38910,render/scene_render_hook.h:sub_140C38910,render/scene_render_hook.h,render/scene_render_hook.h,,
+NOVEL,0x01C8E0C0,NIF_LOAD_BY_PATH_RVA,ni_offsets.h,PC::Load3D public path load,0x01C8E0C0,disasm
+NOVEL,0x01C8D700,NIF_LOAD_WORKER_RVA,ni_offsets.h,5-arg NIF parse worker opts flags,0x01C8D700,disasm
+NOVEL,0x00053080,APPLY_MATERIALS_WALKER_RVA,ni_offsets.h,REFR::Load3D post ProcessEvent materials walker,0x00053080,disasm
+NOVEL,0x000531B0,APPLY_MATERIALS_PERNODE_RVA,ni_offsets.h,inner apply after walker,0x000531B0,disasm
+NOVEL,0x0081D3F0,SET_GRAPH_VAR_INT_RVA,offsets.h,SetGraphVariableInt free,0x0081D3F0,disasm

@@ -1,0 +1,248 @@
+# =============================================================================
+# FO4_Wrld — .gitignore
+# Rule of thumb: only commit OUR code + analysis. Never commit Bethesda IP,
+# third-party emulators with separate licenses, or large regenerable artifacts.
+# =============================================================================
+
+# -- Bethesda binaries / data files (IP, never push) --------------------------
+**/Fallout4.exe
+**/Fallout4Launcher.exe
+**/Fallout4Custom.ini
+**/Fallout4Prefs.ini
+**/*.ba2
+# save files (user data + game state)
+**/*.fos
+# backup saves
+**/*.bak
+# second-instance install copy (full Bethesda binary)
+/FO4_b/
+FO4_b/**
+re/Fallout4.exe*
+re/Fallout4.exe.unpacked
+
+# -- Claude Code session data (per-user, regeneratable) ----------------------
+.claude/
+.claude/**
+
+# -- Manual ops + scratch state files ----------------------------------------
+.manual_ops_*.offset
+# personal absolute paths
+tool-paths.txt
+
+# -- Submodules / nested git repos (vendored deps) ---------------------------
+fw_native/deps/MinHook/
+tools/PIEassetDecompiler/
+
+# -- IDA Pro databases (proprietary format, hundreds of MB, regenerable) ------
+*.i64
+*.idb
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.til*
+
+# -- Goldberg / SteamCMD / Steam emulators (third-party, separate licenses) ---
+goldberg/
+steamcmd/
+**/steam_settings/
+**/steam_api64.dll
+**/steamclient*.dll
+**/ColdClientLoader.exe
+**/ColdAPI/
+
+# Steamworks redistributable staged for the player pack (see
+# tools/player_setup/Get-SteamworksRuntime.ps1). Covered by **/steam_api64.dll
+# above; the folder is listed so the intent is obvious.
+tools/player_setup/steamworks/
+# FoM writes this next to itself at runtime to pin AppID 480.
+steam_appid.txt
+
+# -- Build artifacts (regenerable from CMake/build.bat) -----------------------
+**/build/
+**/CMakeCache.txt
+**/CMakeFiles/
+**/*.obj
+**/*.lib
+**/*.exp
+**/*.pdb
+**/*.ilk
+**/*.dll
+**/*.exe
+# but keep build/deploy scripts
+!**/*.bat
+**/CMakeUserPresets.json
+
+# Vendored deps that are submodules / fetchable separately
+fw_native/deps/MinHook/build/
+fw_native/deps/MinHook/.git/
+
+# -- Python (cache + venv + dist) --------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# -- Runtime logs (regenerable, may contain runtime addresses or save state) -
+*.log
+fw_native.log
+m7_trace.log
+run.log
+
+# -- Large RE intermediate files (regenerable from IDA scripts) --------------
+re/_*_raw.log
+re/_*_raw*.log
+re/_*.dump.log
+re/_ida_*.log
+re/_anim_graph_m7_raw*.log
+re/_bone_drive_correct[2-9]*.log
+
+# -- IDE / OS --------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -- Local config / secrets --------------------------------------------------
+fw_config.ini
+*.env
+.env.*
+secrets/
+**/auth.token
+
+# -- F4SE / mod manager runtime files ----------------------------------------
+**/F4SE/
+**/Data/F4SE/
+**/Data/Scripts/Source/Temp/
+
+# -- Frida runtime artifacts (state.json etc) -------------------------------
+frida/*.frida
+frida/*.cache
+
+# -- TTD (Time Travel Debugging) artifacts -----------------------------------
+# Local WinDbg TTD CLI binaries (extracted from Microsoft Store package —
+# Microsoft EULA restricts redistribution; user must install WinDbg locally).
+ttd_local/
+# 1-10GB TTD recording files. Regenerable on demand.
+ttd_traces/
+
+# -- Game asset cache (Bethesda IP — extracted .nif/.bgsm/.dds, never push) --
+fw_native/assets/raw/Meshes/
+fw_native/assets/raw/Materials/
+fw_native/assets/raw/Sound/
+fw_native/assets/raw/Textures/
+
+# -- Server runtime state snapshots (regenerable, contains in-game state) ----
+net/state_snapshot.json*
+
+# -- Personal design memos / scratch docs (live across sessions, not public) -
+NPCs.md
+
+# -- Tools binaries (we don't ship these in repo) ---------------------------
+tools/*.exe
+
+# -- BAE / archive2 / etc. (extracted assets) -------------------------------
+BAE/
+ALTRE-AI/
+re_unpacked/
+re/cache/
+
+# -- patch test / scratch files ---------------------------------------------
+patch_*.py
+setup_fo4_b*.py
+
+# -- one-off launcher tools --------------------------------------------------
+FoM.exe
+
+# -- demo captures: hosted on YouTube, never committed to repo
+#    (raw OBS capture is 200+ MB; compressed copies are also kept local).
+/DEMO_FoW.mp4
+/assets/demo.mp4
+
+# -- Personal brainstorm doc (Italian, design notes, not for public) -------
+fallout_multiplayer_project_brainstorm.md
+
+# -- Internal Italian dev docs (kept locally, not for public consumption) ---
+fw_native/docs/B5_*.md
+fw_native/docs/DEVIAZIONE_*.md
+fw_native/docs/PIVOT_*.md
+fw_native/docs/tools-da-usare.md
+
+# -- Legacy Python net code (Italian, superseded by net/server/ + net/client/)
+net/legacy/
+
+# -- Frida one-shot debug scripts with hardcoded personal paths -------------
+frida/spawn_*.py
+
+# -- IDA Python analysis scripts + raw RE outputs (regenerable) -------------
+# WHITELIST APPROACH: only public-facing dossiers stay tracked.
+# Everything else under re/ is debug-iteration scratch (depth_final*.py,
+# find_*.py, dump_*.py, level0_*.py) or one-off RE report dumps
+# (*_report.txt, log_*.txt, etc.). All have hardcoded personal paths
+# from the IDA invocation and are easily regenerated by re-running the
+# scripts against a fresh IDA DB.
+#
+# Tracked (kept by the negation rule):
+#   re/M8P{1,2,3}_*.txt   — milestone RE dossiers (NIF loader, skin
+#                            instance layout, walker, scene register)
+#   re/M8_strategic_decision.txt — pivot rationale (D3D11 vs scene graph)
+re/*
+!re/M8*
+re/Fallout4.exe_angr_rtdb/
+
+# -- fw_native/re/ : agent RE arena scratch (SOLVER/AGENT/walker dossiers) ----
+# Same category as root re/ above — internal, regenerable iteration scratch,
+# NOT curated public dossiers (those are only re/M8*). ~33k lines of agent
+# output kept out of history. Added before the first NPC-coop commit.
+fw_native/re/
+
+# Note: tracked .md files (root README, CHANGELOG, fw_native/README,
+# launcher/README) are intentionally kept. Italian/internal docs are
+# excluded explicitly above (fw_native/docs/B5_*.md etc.).
+
+# -- Root-level scratch / runtime / capture files (not in subdirs) ----------
+# Leading `/` scopes these to the repo root only — same-named files inside
+# subdirectories are unaffected.
+/state*.json
+/*.log
+/capture*.txt
+/*_frida_capture.txt
+/tool-paths.txt
+/ttd_attach.bat
+
+#altre repo RE
+CommonLibF4-master/*
+# CommonLibF4 reference clone (step C) — never vendor
+CommonLibF4/
+# Address Library CSV dump (~24 MB) used by tools/known_lookup.py
+tools/addresslib/
+
+# =============================================================================
+# SECRETS + per-iteration exclusions (added before the first NPC-coop commit)
+# =============================================================================
+
+# -- Discord bot token + any local-only secret (NEVER commit) ----------------
+# The Discord integration token lives in Discord/.discord_token.local.
+# `*.local` is this repo's convention for local-only secret/override files.
+*.local
+Discord/.discord_token.local
+**/.discord_token.local
+
+# -- Build capture logs (regenerable from build.bat) -------------------------
+**/build_output.txt
+
+# -- Demo / capture videos (large binaries — hosted on YouTube, never push) --
+# Subsumes the older /DEMO_FoW.mp4 and /assets/demo.mp4 rules above.
+*.mp4
+
+# -- Frida tracing scratch (one-off trace dumps keep reappearing as junk) ----
+tools/frida/

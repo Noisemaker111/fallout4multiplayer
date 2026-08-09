@@ -1,0 +1,94 @@
+# FW_MINIMAL - modules compiled OUT of a minimal build.
+#
+# Purpose: the 1.10.163 port has to re-derive every version-pinned address by
+# hand. Most of them belong to subsystems that are not needed to walk around a
+# map and see another player move. Dropping those modules from the build drops
+# their addresses from the port work-list, which is the whole point -- see
+# docs/START_HERE.md section 4 and step A of section 5.
+#
+# This file is the SINGLE SOURCE OF TRUTH for the reduced set. It is read by:
+#   * fw_native/CMakeLists.txt       - drops <stem>.cpp from the target
+#   * tools/port_assess.py --minimal - drops <stem>.cpp AND <stem>.h from the
+#                                      address scan, so the work-list count
+#                                      matches what actually gets compiled
+#
+# Format: one module stem per line, relative to fw_native/src, no extension.
+# Blank lines and whole-line "#" comments are ignored; a trailing comment on a
+# stem line is NOT stripped. A stem covers both .cpp and .h.
+#
+# KEEP THIS FILE PURE ASCII. CMake's file(STRINGS) behaves like strings(1): it
+# splits a line at the first non-ASCII byte, so an em dash inside a comment
+# turns one comment into two "lines", the second of which no longer starts with
+# "#" and gets parsed as a module stem.
+#
+# Adding a stem here is not enough on its own: if a module that STAYS includes
+# the excluded header, that header needs an "#if FW_MINIMAL" stub block (see
+# hooks/npc_ai_suppress.h for the pattern). Modules only reached from
+# hooks/install_all.cpp need no stub -- the include and the install call are
+# guarded there directly.
+
+# ---------------------------------------------------------------------------
+# NPC AI / combat sync. The single largest block of NOVEL addresses, and the
+# one whose RE dossiers were never committed (START_HERE section 4) --
+# deferring it removes the work that has the least surviving documentation.
+# ---------------------------------------------------------------------------
+hooks/ghost_ai_package
+hooks/ghost_ai_combat_target
+hooks/ghost_ai_aim
+hooks/ghost_ai_movement
+hooks/ghost_ai_pos_belt
+hooks/ghost_ai_actor_setpos
+hooks/ghost_ai_havok_step
+hooks/ghost_ai_fire
+hooks/ghost_ai_dispatch_attack
+hooks/ghost_ai_process_movement
+hooks/ghost_ai_set_combat_target
+hooks/ghost_ai_action_execute
+hooks/ghost_ai_hit_applier
+hooks/ghost_ai_combat_orchestrator
+hooks/npc_ai_suppress
+hooks/puppet_update_perframe
+hooks/ghost_combat_force
+
+# Shared-HP pool (N3/N4). Rides on the combat layer above.
+hooks/npc_hp_probe
+hooks/hp_bar_hook
+
+# ---------------------------------------------------------------------------
+# Crash guards. Every one of these exists to survive a crash class that only
+# the proxy-Actor / combat tier can produce. With that tier compiled out there
+# is nothing for them to guard. One caveat is documented at the
+# install_ghost_target_resolve_guard call site in hooks/install_all.cpp.
+# ---------------------------------------------------------------------------
+hooks/ghost_hostility_guard
+hooks/ghost_hostility_guard_layer1
+hooks/ghost_vt197_guard
+hooks/ghost_global_walker_guards
+hooks/ghost_is_attachable
+hooks/cross_cell_gate
+hooks/event_dispatch_guard
+
+# ---------------------------------------------------------------------------
+# World interaction. KEPT for release-grade co-op (1:1 campaign track):
+#   container / put / pickup / door / lock / kill / worldstate
+# ---------------------------------------------------------------------------
+# (none of the above are excluded anymore)
+
+# ---------------------------------------------------------------------------
+# Equipment: equip_hook KEPT (peer outfit). equip_cycle/announce still optional.
+# ---------------------------------------------------------------------------
+hooks/equip_cycle
+hooks/equip_announce
+
+
+# ---------------------------------------------------------------------------
+# M9 weapon-mod RE diagnostics. Two of these are already tagged DEAD-END in
+# install_all.cpp; all of them are observation-only and produce no gameplay.
+# ---------------------------------------------------------------------------
+hooks/engine_tracer
+hooks/subrefload_hook
+hooks/bsmodelproc_hook
+native/nif_path_cache
+native/bsgeo_input_cache
+native/ni_alloc_tracker
+native/clone_factory_tracker

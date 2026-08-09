@@ -1,0 +1,587 @@
+#include "main_menu_hook.h"
+
+#include <windows.h>
+#include <atomic>
+#include <chrono>
+#include <cstdint>
+#include <string>
+#include <thread>
+
+#include "../config.h"
+#include "../engine/engine_calls.h"
+#include "../ghost/actor_hijack.h"
+#include "equip_hook.h"  // M9 w4 v9: FW_MSG_DEFERRED_MESH_TX
+#include "../native/weapon_capture.h"  // M9.w4 PROPER (v0.4.2+): FW_MSG_WEAPON_CAPTURE_FINALIZE
+#include "../native/spai_prewarm.h"    // SPAI Tier 1: FW_MSG_SPAI_PREWARM
+// (synthetic_refr's earlier WM_APP message has been removed; the API is sync)
+#include "../hook_manager.h"
+#include "../log.h"
+#include "../main_thread_dispatch.h"
+#include "../native/scene_inject.h"
+#include "../offsets.h"
+#include "equip_cycle.h"  // B8: WndProc dispatches FW_MSG_FORCE_EQUIP_CYCLE_*
+
+namespace fw::hooks {
+
+namespace {
+
+// ----------------------------------------------------------------- hook #1
+// sub_140BBC050 — MainMenu Scaleform registrar. Binds AS3→C++ callbacks
+// for the main menu. Called on the main thread while the menu is being
+// constructed. We use this as a "main menu is starting up" trigger; we do
+// NOT call LoadGame from here directly — that fires before the menu is
+// input-ready and leaves the engine's render state stuck on the menu
+// background ("black screen" observed in v3 live test).
+//
+// Instead the detour sets g_menu_detected; a background worker waits N
+// seconds then PostMessage's a custom WM_APP to the FO4 window. A WndProc
+// subclass we install on that window catches the message (on the main
+// thread, which dispatches WndProc) and performs the real LoadGame call
+// — by then the menu is fully visible and idle.
+using MainMenuRegisterFn = void* (*)(void* menu_obj);
+MainMenuRegisterFn g_orig_main_menu_register = nullptr;
+
+// Fire-once guard for the dispatch pipeline.
+std::atomic<bool> g_menu_detected{false};
+std::atomic<bool> g_load_queued{false};
+std::atomic<bool> g_load_dispatched{false};
+
+// Settings snapshot captured at install time.
+std::string g_save_name;
+std::uint32_t g_delay_ms = 4000;   // v4 default: 4s after registrar hit
+
+// ----------------------------------------------------------------- WndProc subclass
+//
+// We replace the FO4 main-window WndProc. Our proc forwards all unrelated
+// messages to the original via CallWindowProcW; when it sees our custom
+// WM_APP it invokes LoadGame — guaranteed on the main thread because
+// Win32 dispatches WndProc on whichever thread owns the window's message
+// pump, and the main FO4 window is pumped by the engine's main thread.
+constexpr UINT  FW_MSG_LOAD_GAME = WM_APP + 0x42;
+HWND           g_fo4_hwnd        = nullptr;
+WNDPROC        g_orig_wndproc    = nullptr;
+
+// Find the FO4 main top-level window owned by our (this) process.
+HWND find_fo4_hwnd() {
+    struct Ctx { DWORD pid; HWND found; };
+    Ctx ctx{ GetCurrentProcessId(), nullptr };
+    EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
+        auto* c = reinterpret_cast<Ctx*>(lp);
+        DWORD wpid = 0;
+        GetWindowThreadProcessId(hwnd, &wpid);
+        if (wpid != c->pid) return TRUE;
+        if (!IsWindowVisible(hwnd)) return TRUE;
+        wchar_t cls[64] = {};
+        GetClassNameW(hwnd, cls, 63);
+        if (std::wcscmp(cls, L"Fallout4") == 0) {
+            c->found = hwnd;
+            return FALSE;
+        }
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&ctx));
+    return ctx.found;
+}
+
+LRESULT CALLBACK fw_wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    if (msg == FW_MSG_LOAD_GAME) {
+        // We're on the main (UI) thread — MinHook-level guarantees don't
+        // apply here (no MinHook involved), but Win32 semantics do:
+        // WndProc is dispatched on the thread that owns the window.
+        bool expected = false;
+        if (!g_load_dispatched.compare_exchange_strong(expected, true)) {
+            FW_DBG("[main_menu] FW_MSG_LOAD_GAME received but already dispatched");
+            return 0;
+        }
+        FW_LOG("[main_menu] WM_APP+0x42 received on WndProc main thread — "
+               "invoking engine LoadGame('%s')", g_save_name.c_str());
+        const bool ok = fw::engine::load_game_by_name(g_save_name.c_str());
+        if (!ok) {
+            FW_WRN("[main_menu] LoadGame returned failure — main menu stays up");
+            return 0;
+        }
+        // B8 force-equip-cycle — DISABLED 2026-05-08.
+        //
+        // Was: post-LoadGame BipedAnim normalize via direct engine call to
+        // ActorEquipManager::Unequip + Equip on the Vault Suit. Workaround
+        // for an M8P3-era ghost-pointer-sharing bug where the first equip
+        // event after peer-connect crashed due to "semi-allocated"
+        // BipedAnim state. See `re/B8_force_equip_cycle.log` and the
+        // `offsets.h` "B8 force-equip-cycle" comment block for the
+        // original architectural rationale.
+        //
+        // Why disabled: B8's engine call AV'd internally on every boot
+        // (caught by our SEH wrapper, hidden from the user). The half-
+        // completed equip left engine state subtly corrupted; the
+        // corruption was dormant during normal play but surfaced as a
+        // deterministic main-thread freeze when crossing the Sanctuary→
+        // Red Rocket bridge — heavy exterior cell-streaming re-triggered
+        // the corrupted auto-equip code path on a BSJobs PostMainRender
+        // worker, killing it silently and wedging JobListMgr+0x60 on an
+        // INFINITE wait. Live test 2026-05-08 confirmed: B8 enabled =
+        // bridge crashes, B8 disabled = bridge works + clothes change
+        // still works (the original M8P3 bug B8 was fixing has been
+        // resolved as a side effect of later M9 work).
+        //
+        // The secondary role B8 played as a side effect — broadcasting
+        // initial apparel state to peers via the engine equip events it
+        // generated — is replaced by the `equip_announce` scaffold (see
+        // `hooks/equip_announce.h`, NON TESTATO).
+        //
+        // Files left in repo for archeological reference:
+        //   - hooks/equip_cycle.{h,cpp} (still compiled but never invoked)
+        //   - offsets.h B8 block (rationale + RE'd engine fn signatures)
+        //
+        // To revive: uncomment the arm call below. Don't, until the
+        // engine AV inside sub_140CE5900 is understood and fixed at the
+        // arg/timing level — see `re/B8_force_equip_cycle.log` for the
+        // deepest level of stack/arg analysis we have.
+        // fw::hooks::arm_equip_cycle_after_loadgame(10000);
+        return 0;
+    }
+    // B1.l: CONTAINER_BCAST apply. Drains any container ops that the net
+    // thread enqueued via fw::dispatch::enqueue_container_apply. This is
+    // the main-thread-safe counterpart to engine::apply_container_op_to_
+    // engine — Bethesda's engine requires inventory mutations to happen
+    // on the main thread, otherwise stale ContainerMenu view state can
+    // corrupt the player's inventory (observed 2026-04-21 live test).
+    if (msg == fw::dispatch::FW_MSG_CONTAINER_APPLY) {
+        fw::dispatch::drain_container_apply_queue();
+        return 0;
+    }
+    // B6.1: drain remote door-activate queue on main thread. Same rationale
+    // as container apply — Activate worker fires anim graph notify which
+    // mutates the scene's per-cell anim state; not net-thread-safe.
+    if (msg == fw::dispatch::FW_MSG_DOOR_APPLY) {
+        fw::dispatch::drain_door_apply_queue();
+        return 0;
+    }
+    // B6.3 v0.5.3: drain remote lock events. Each op resolves form_id +
+    // (base, cell) identity, then calls Papyrus binding sub_141158640
+    // with ai_notify=0 — no minigame, no key consumption, no AI events.
+    if (msg == fw::dispatch::FW_MSG_LOCK_APPLY) {
+        fw::dispatch::drain_lock_apply_queue();
+        return 0;
+    }
+    // B4 QuestStage: drain remote SetStage events. MAIN THREAD required —
+    // Papyrus stage workers read TEB TLS. ApplyingRemoteGuard lives inside
+    // the drain so the observe hook does not echo back to the server.
+    if (msg == fw::dispatch::FW_MSG_QUEST_STAGE_APPLY) {
+        fw::dispatch::drain_quest_stage_apply_queue();
+        return 0;
+    }
+    // B6.7: drain PC faction-rank applies (SetFactionRank worker).
+    if (msg == fw::dispatch::FW_MSG_FACTION_RANK_APPLY) {
+        fw::dispatch::drain_faction_rank_apply_queue();
+        return 0;
+    }
+    // A2: party teleport (F8 / PARTY_WARP_BCAST).
+    if (msg == fw::dispatch::FW_MSG_PARTY_TELEPORT) {
+        fw::dispatch::drain_party_teleport_queue();
+        return 0;
+    }
+    // A4: proximity XP grant apply.
+    if (msg == fw::dispatch::FW_MSG_XP_GRANT_APPLY) {
+        fw::dispatch::drain_xp_grant_apply_queue();
+        return 0;
+    }
+    if (msg == fw::dispatch::FW_MSG_WEATHER_APPLY) {
+        fw::dispatch::drain_weather_apply_queue();
+        return 0;
+    }
+    if (msg == fw::dispatch::FW_MSG_COMPANION_APPLY) {
+        fw::dispatch::drain_companion_apply_queue();
+        return 0;
+    }
+    if (msg == fw::dispatch::FW_MSG_CELL_CLEARED_APPLY) {
+        fw::dispatch::drain_cell_cleared_apply_queue();
+        return 0;
+    }
+    // v23: relationship rank + Wait/Sleep time pass.
+    if (msg == fw::dispatch::FW_MSG_RELATIONSHIP_APPLY) {
+        fw::dispatch::drain_relationship_apply_queue();
+        return 0;
+    }
+    if (msg == fw::dispatch::FW_MSG_TIME_PASS_APPLY) {
+        fw::dispatch::drain_time_pass_apply_queue();
+        return 0;
+    }
+    if (msg == fw::dispatch::FW_MSG_ITEM_GRANT_APPLY) {
+        fw::dispatch::drain_item_grant_apply_queue();
+        return 0;
+    }
+    // B6.5w3.b: drain remote NPC state-broadcast entries. Each entry
+    // resolves form_id, writes pos/yaw directly to Actor fields, and
+    // sets anim graph variables to drive the engine's animation tree
+    // (no AI suppression yet — B6.5w4 lands the local-tick filter).
+    if (msg == fw::dispatch::FW_MSG_NPC_STATE_APPLY) {
+        fw::dispatch::drain_npc_state_apply_queue();
+        return 0;
+    }
+    // Build 65.c.10 — owner-driven STATE_FROM_OWNER apply (receiver side).
+    // Drains entries the net thread queued from server-relayed owner state.
+    if (msg == fw::dispatch::FW_MSG_NPC_OWNER_STATE_APPLY) {
+        fw::dispatch::drain_npc_owner_state_apply_queue();
+        return 0;
+    }
+    // Build 65.c.47 WEDGE3 — owner-driven DEATH_FROM_OWNER apply (non-owner
+    // side). Drains relayed owner deaths: un-keyframe → place at synced pos →
+    // engine Actor::Kill (under ApplyingRemoteGuard). Main-thread-required:
+    // the engine death handler touches cell + anim + Havok state.
+    if (msg == fw::dispatch::FW_MSG_NPC_DEATH_APPLY) {
+        fw::dispatch::drain_npc_death_apply_queue();
+        return 0;
+    }
+    // HP bar (vita-locale-dal-pool) — set each tracked NPC's LOCAL Health to the
+    // shared server pool so the vanilla enemy-health bar reads it. Main-thread-
+    // required (AVO getter + the HP funnel are main-thread-affine).
+    if (msg == fw::dispatch::FW_MSG_NPC_POOL_HEALTH_APPLY) {
+        fw::dispatch::drain_npc_pool_health_queue();
+        return 0;
+    }
+    // B6.6w1: drain remote NPC fire events. Each op resolves form_id →
+    // Actor* and calls engine::fire_actor_weapon — Projectile::Launch +
+    // muzzle flash + audio + damage. Native fns touch equipManager +
+    // projectile lists not lock-protected → main thread required.
+    if (msg == fw::dispatch::FW_MSG_NPC_FIRE) {
+        fw::dispatch::drain_npc_fire_queue();
+        // Build 62 — drain perception trigger queue on the same wake-up.
+        // Both queues need main-thread engine calls; sharing the WndProc
+        // message avoids a second PostMessage round-trip. Order doesn't
+        // matter (perception triggers cause CCF810 alloc, fires use the
+        // result — but they're separately enqueued by net thread).
+        fw::dispatch::drain_npc_perception_trigger_queue();
+        return 0;
+    }
+    // M9 wedge 2: drain remote equip events. Each op resolves form_id →
+    // ARMA → 3rd-person NIF path and attaches/detaches on the ghost.
+    // Engine NIF loader + scene graph mutation = main-thread-required.
+    // See offsets.h "M9 wedge 2" comment block for layout + flow.
+    if (msg == fw::dispatch::FW_MSG_EQUIP_APPLY) {
+        fw::dispatch::drain_equip_apply_queue();
+        return 0;
+    }
+    // M9 wedge 4 v9: drain remote mesh-blob events. Each blob carries N
+    // BSGeometry leaves (positions + indices + per-mesh metadata) and the
+    // main thread reconstructs them on the matching ghost weapon root via
+    // the engine's clone factory. Like equip apply, this MUST run on the
+    // main thread (scene graph mutation; allocator TLS cookies).
+    if (msg == fw::dispatch::FW_MSG_MESH_BLOB_APPLY) {
+        fw::dispatch::drain_mesh_blob_apply_queue();
+        return 0;
+    }
+    // M9 w4 v9 deferred mesh-tx: 300ms post-equip walker re-run on the
+    // sender side. Lets the engine's runtime weapon assembly complete
+    // before we capture mesh data → fixes "walker returned 0 meshes"
+    // on rapid/subsequent equips.
+    if (msg == fw::hooks::FW_MSG_DEFERRED_MESH_TX) {
+        fw::hooks::on_deferred_mesh_tx_message();
+        return 0;
+    }
+    // 2026-05-07 — auto re-equip cycle (sender-side workaround for the
+    // off-by-one render bug on the ghost). See equip_hook.cpp on_auto_re_
+    // equip_message comment block.
+    if (msg == fw::hooks::FW_MSG_AUTO_RE_EQUIP) {
+        fw::hooks::on_auto_re_equip_message(wp);
+        return 0;
+    }
+    // SPAI Tier 1: force-prewarm one weapon NIF into the engine resmgr.
+    // Posted by spai::prewarm_worker (background thread, throttled 1
+    // post per ~10–15 ms) for each entry in the offline-generated weapon
+    // catalog. Drives a single internal cursor — past the end is a
+    // no-op modulo a one-shot summary log line.
+    if (msg == fw::dispatch::FW_MSG_SPAI_PREWARM) {
+        fw::native::spai::on_prewarm_message();
+        return 0;
+    }
+    // M9.w4 PROPER (v0.4.2+, 2026-05-04): TTL expiration of a weapon capture
+    // window. Worker thread spawned by weapon_capture::arm() posts this msg
+    // after `ttl_ms` so finalize_and_ship() runs on the engine main thread
+    // (where extraction + wire ship are safe). Phase 1: log-only finalize.
+    if (msg == fw::native::weapon_capture::FW_MSG_WEAPON_CAPTURE_FINALIZE) {
+        fw::native::weapon_capture::on_finalize_message();
+        return 0;
+    }
+    // M9 closure (2026-05-07) note: an earlier iteration used a
+    // FW_MSG_REFR_POLL pump for an async synthetic-REFR design. That
+    // design was retired (see re/COLLAB_FOLLOWUP_vt170.md — vt[170]
+    // was a flag-setter, not a loader). The current path is fully
+    // synchronous (synthetic_refr::assemble_modded_weapon returns
+    // BSFadeNode* directly), so no pump is needed here.
+    // Z.2 (Path B): spawn ghost actor on main thread. PlaceAtMe is
+    // TLS-sensitive and takes the REFR cell-attach lock — must run
+    // here, not on the net thread where request_spawn is issued.
+    if (msg == fw::ghost::FW_MSG_SPAWN_GHOST) {
+        fw::ghost::on_spawn_message();
+        return 0;
+    }
+    // Strada B M1: attach a debug NiNode to the ShadowSceneNode. Main-
+    // thread affinity required (scene graph array has implicit locks held
+    // by the render walk; our allocator call writes TLS cookies). Posted
+    // by fw::native::arm_injection_after_boot's worker ~30s after DLL init.
+    if (msg == fw::native::FW_MSG_STRADAB_INJECT) {
+        fw::native::on_inject_message();
+        return 0;
+    }
+    // Strada B M3: per-frame cube position update from remote snapshot.
+    // Posted by fw::native::arm_worker's tracker loop (up to ~10/sec).
+    if (msg == fw::native::FW_MSG_STRADAB_POS_UPDATE) {
+        fw::native::on_pos_update_message();
+        return 0;
+    }
+    // Strada B M7.b: bone-copy tick from local player to ghost. Posted
+    // by bone_tick_worker at 20Hz. Runs regardless of peer activity.
+    if (msg == fw::native::FW_MSG_STRADAB_BONE_TICK) {
+        fw::native::on_bone_tick_message();
+        return 0;
+    }
+    // M8P3.15: apply received remote pose (POSE_BROADCAST) to ghost.
+    // Posted by net thread after stashing quats into shared slot.
+    if (msg == fw::native::FW_MSG_STRADAB_POSE_APPLY) {
+        fw::native::on_pose_apply_message();
+        return 0;
+    }
+    // v16: apply received remote crouch (POSE_CROUCH_BROADCAST) to ghost —
+    // SEPARATE additive channel beside the rotation pose above. Posted by
+    // net thread after stashing the COM/Pelvis translations.
+    if (msg == fw::native::FW_MSG_STRADAB_CROUCH_APPLY) {
+        fw::native::on_pose_crouch_apply_message();
+        return 0;
+    }
+    // c.37.0: apply received NPC pose (NPC_POSE_FROM_OWNER) to the mirror
+    // Actor. Posted by net thread after stashing quats into the per-fid slot.
+    if (msg == fw::native::FW_MSG_STRADAB_NPC_POSE_APPLY) {
+        fw::native::on_npc_pose_apply_message();
+        return 0;
+    }
+    // B8: post-LoadGame BipedAnim normalize cycle. Two-phase:
+    //   - WM_APP+0x4A → unequip Vault Suit
+    //   - WM_APP+0x4B → re-equip Vault Suit (500ms later, posted by worker)
+    // Both run on this thread (main/UI thread guaranteed by Win32 WndProc
+    // dispatch). Engine ActorEquipManager calls take per-actor locks +
+    // mutate BipedAnim — main-thread is required.
+    // See offsets.h "B8 force-equip-cycle" comment block for rationale.
+    if (msg == (WM_APP + 0x4A)) {
+        fw::hooks::on_force_equip_cycle_unequip_message();
+        return 0;
+    }
+    if (msg == (WM_APP + 0x4B)) {
+        fw::hooks::on_force_equip_cycle_equip_message();
+        return 0;
+    }
+    // Forward everything else to the original WndProc.
+    if (g_orig_wndproc) {
+        return CallWindowProcW(g_orig_wndproc, hwnd, msg, wp, lp);
+    }
+    return DefWindowProcW(hwnd, msg, wp, lp);
+}
+
+// Install the WndProc subclass once we have a valid HWND. Called from the
+// worker thread after the main menu registrar has fired (by then the
+// window definitely exists — it had to exist to render the menu anyway).
+bool install_wndproc_subclass() {
+    if (g_orig_wndproc) return true;  // already installed
+    g_fo4_hwnd = find_fo4_hwnd();
+    if (!g_fo4_hwnd) {
+        FW_WRN("[main_menu] find_fo4_hwnd returned nullptr — cannot subclass WndProc");
+        return false;
+    }
+    // SetWindowLongPtrW returns the previous value (original WndProc).
+    // We save it for CallWindowProcW forwarding.
+    const LONG_PTR prev = SetWindowLongPtrW(
+        g_fo4_hwnd, GWLP_WNDPROC,
+        reinterpret_cast<LONG_PTR>(&fw_wndproc));
+    if (prev == 0) {
+        FW_ERR("[main_menu] SetWindowLongPtr(GWLP_WNDPROC) failed (err=%lu)",
+               GetLastError());
+        return false;
+    }
+    g_orig_wndproc = reinterpret_cast<WNDPROC>(prev);
+    FW_LOG("[main_menu] WndProc subclassed on hwnd=%p (orig=%p)",
+           g_fo4_hwnd, g_orig_wndproc);
+
+    // B1.l: share the HWND with the main-thread dispatch queue so net
+    // thread can post FW_MSG_CONTAINER_APPLY for remote container ops.
+    fw::dispatch::set_target_hwnd(g_fo4_hwnd);
+    return true;
+}
+
+// ----------------------------------------------------------------- worker
+//
+// Background thread — two trigger modes:
+//   A) Registrar detour sets g_menu_detected (preferred, when MinHook works).
+//   B) Fallback: poll for the Fallout4 top-level window. Used when the
+//      registrar hook fails (live 1.10.163: MH_CreateHook UNSUPPORTED_FUNCTION
+//      on MAIN_MENU_REGISTRAR_RVA) or when we still want auto-load without it.
+// Then: sleep g_delay_ms, subclass WndProc, PostMessage LoadGame.
+std::thread g_worker_thread;
+std::atomic<bool> g_worker_should_stop{false};
+std::atomic<bool> g_use_hwnd_fallback{false};
+
+void worker_thread_main() {
+    const bool fallback = g_use_hwnd_fallback.load(std::memory_order_acquire);
+    FW_LOG("[main_menu] worker armed mode=%s delay=%ums save='%s'",
+           fallback ? "hwnd-poll-fallback" : "registrar",
+           g_delay_ms, g_save_name.c_str());
+
+    if (fallback) {
+        // Wait until the FO4 main window exists (main menu is up).
+        constexpr DWORD kMaxWaitMs = 120000;
+        DWORD waited = 0;
+        while (!g_worker_should_stop.load() && waited < kMaxWaitMs) {
+            if (find_fo4_hwnd()) break;
+            Sleep(200);
+            waited += 200;
+        }
+        if (g_worker_should_stop.load()) return;
+        if (!find_fo4_hwnd()) {
+            FW_ERR("[main_menu] worker: Fallout4 hwnd never appeared "
+                   "after %ums — cannot auto-load", waited);
+            return;
+        }
+        FW_LOG("[main_menu] worker: FO4 hwnd seen after %ums — waiting "
+               "%ums for menu idle", waited, g_delay_ms);
+        g_menu_detected.store(true, std::memory_order_release);
+    } else {
+        while (!g_worker_should_stop.load() && !g_menu_detected.load()) {
+            Sleep(50);
+        }
+    }
+    if (g_worker_should_stop.load()) return;
+
+    const auto t0 = std::chrono::steady_clock::now();
+    const auto deadline = t0 + std::chrono::milliseconds(g_delay_ms);
+    while (std::chrono::steady_clock::now() < deadline) {
+        if (g_worker_should_stop.load()) return;
+        Sleep(50);
+    }
+
+    // Now the menu should be fully visible and idle.
+    bool expected = false;
+    if (!g_load_queued.compare_exchange_strong(expected, true)) {
+        FW_DBG("[main_menu] worker: load already queued");
+        return;
+    }
+
+    // Fire LoadGame ASAP — the process often AVs at 0x9E5CC0 ~1–2s after
+    // hwnd. Do not wait on SendMessageTimeout (can hang while main is dying).
+    // 1) PostMessage so main thread runs LoadGame if it is still pumping.
+    // 2) Immediately also call load_game_by_name from this worker (SEH-caged).
+    //    Double-invoke is guarded by g_load_dispatched in the WndProc path
+    //    and is harmless if the engine rejects a second LoadGame.
+    g_fo4_hwnd = find_fo4_hwnd();
+    if (g_fo4_hwnd && install_wndproc_subclass()) {
+        if (PostMessageW(g_fo4_hwnd, FW_MSG_LOAD_GAME, 0, 0)) {
+            FW_LOG("[main_menu] worker: FW_MSG_LOAD_GAME posted hwnd=%p",
+                   g_fo4_hwnd);
+        } else {
+            FW_WRN("[main_menu] worker: PostMessage failed err=%lu",
+                   GetLastError());
+        }
+        // Tiny yield so a live main pump can drain the message first.
+        Sleep(50);
+    } else {
+        FW_WRN("[main_menu] worker: no hwnd/subclass — direct only");
+    }
+
+    if (g_load_dispatched.load(std::memory_order_acquire)) {
+        FW_LOG("[main_menu] worker: WndProc already dispatched LoadGame — done");
+        return;
+    }
+
+    FW_LOG("[main_menu] worker: DIRECT load_game_by_name('%s')",
+           g_save_name.c_str());
+    const bool ok = fw::engine::load_game_by_name(g_save_name.c_str());
+    FW_LOG("[main_menu] worker: DIRECT LoadGame → %s",
+           ok ? "accepted" : "FAILED");
+}
+
+// ----------------------------------------------------------------- detour
+
+void* __fastcall detour_main_menu_register(void* menu_obj) {
+    // Let the original registrar complete first — AS3 bindings must be in
+    // place or the menu breaks.
+    void* rv = g_orig_main_menu_register(menu_obj);
+
+    // One-shot detection. MinHook invokes the detour on the caller's
+    // thread, so this runs on the engine's main UI thread.
+    bool expected = false;
+    if (!g_menu_detected.compare_exchange_strong(expected, true)) {
+        FW_DBG("[main_menu] registrar re-entry (submenu) — ignoring");
+        return rv;
+    }
+
+    if (g_save_name.empty()) {
+        FW_LOG("[main_menu] registrar hit (menu_obj=%p) — auto-load disabled "
+               "(auto_load_save empty in fw_config.ini)", menu_obj);
+        return rv;
+    }
+
+    FW_LOG("[main_menu] registrar hit (menu_obj=%p) — deferred LoadGame "
+           "scheduled in %ums (worker thread will post WM_APP to WndProc)",
+           menu_obj, g_delay_ms);
+    return rv;
+}
+
+} // namespace
+
+bool install_main_menu_hook(std::uintptr_t module_base,
+                            const fw::config::Settings& cfg)
+{
+    g_save_name = cfg.auto_load_save;
+    // Reuse `auto_continue_delay_ms` as the worker delay. Clamp so a
+    // misconfigured 0 doesn't race the menu.
+    g_delay_ms = cfg.auto_continue_delay_ms;
+    // 2026-08-02: allow sub-second delay — live 1.10.163 AVs ~2s after
+    // hwnd appears, so a 4s "menu idle" wait never reaches LoadGame.
+    if (g_delay_ms < 200)   g_delay_ms = 200;
+    if (g_delay_ms > 30000) g_delay_ms = 30000;
+
+    const auto target_ea = module_base + offsets::MAIN_MENU_REGISTRAR_RVA;
+    void* target = reinterpret_cast<void*>(target_ea);
+
+    // 2026-08-02: MAIN_MENU_REGISTRAR_RVA (0xBBC050) is not a MinHook-safe
+    // prologue on 1.10.163 (MH_CreateHook → UNSUPPORTED_FUNCTION every boot).
+    // Skip the create attempt when auto_load_save is set — go straight to
+    // hwnd-poll. Avoids MinHook probing a mid-function / non-code target
+    // during the fragile first seconds of boot.
+    if (!g_save_name.empty()) {
+        g_use_hwnd_fallback.store(true, std::memory_order_release);
+        g_worker_thread = std::thread(&worker_thread_main);
+        g_worker_thread.detach();
+        FW_LOG("[main_menu] hwnd-poll auto-load armed (skip registrar MH) "
+               "save='%s' delay=%ums target_rva=0x%llX",
+               g_save_name.c_str(), g_delay_ms,
+               static_cast<unsigned long long>(offsets::MAIN_MENU_REGISTRAR_RVA));
+        return true;
+    }
+
+    const bool ok = install(
+        target,
+        reinterpret_cast<void*>(&detour_main_menu_register),
+        reinterpret_cast<void**>(&g_orig_main_menu_register));
+    if (!ok) {
+        FW_ERR("[main_menu] hook install FAILED at 0x%llX — no auto_load_save, "
+               "cannot fall back",
+               static_cast<unsigned long long>(target_ea));
+        return false;
+    }
+    if (g_save_name.empty()) {
+        FW_LOG("[main_menu] hook installed at 0x%llX — auto_load_save empty, "
+               "no load action configured",
+               static_cast<unsigned long long>(target_ea));
+        return true;  // don't spin worker if nothing to do
+    }
+
+    FW_LOG("[main_menu] hook installed at 0x%llX — auto-load target: '%s' "
+           "(delay %ums after registrar hit)",
+           static_cast<unsigned long long>(target_ea),
+           g_save_name.c_str(), g_delay_ms);
+
+    // Spawn worker thread. Detached; lifecycle tied to process exit.
+    g_use_hwnd_fallback.store(false, std::memory_order_release);
+    g_worker_thread = std::thread(&worker_thread_main);
+    g_worker_thread.detach();
+    return true;
+}
+
+} // namespace fw::hooks
